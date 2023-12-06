@@ -1,0 +1,45 @@
+{
+	"name": "@vyke/results",
+	"type": "module",
+	"version": "0.0.1",
+	"description": "Collection of helpers to work with the Result type in TypeScript",
+	"author": "Jose Albizures <jose@albizures.com> (https://albizures.com/)",
+	"license": "MIT",
+	"keywords": [],
+	"exports": {
+		".": {
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"main": "./dist/index.cjs",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "unbuild",
+		"test": "run-s test:unit test:types test:lint",
+		"test:use": "knip",
+		"test:lint": "eslint .",
+		"test:unit": "vitest run",
+		"test:unit:dev": "vitest",
+		"test:types": "tsc --noEmit",
+		"prepack": "pnpm build",
+		"release": "standard-version -t v && pnpm publish --access public"
+	},
+	"devDependencies": {
+		"@antfu/eslint-config": "^2.3.4",
+		"eslint": "^8.55.0",
+		"knip": "^3.5.0",
+		"npm-run-all": "^4.1.5",
+		"typescript": "^5.3.2",
+		"unbuild": "^2.0.0",
+		"vitest": "^1.0.1"
+	},
+	"standard-version": {
+		"skip": {
+			"changelog": true
+		}
+	}
+}
