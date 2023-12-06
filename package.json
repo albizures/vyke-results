@@ -1,7 +1,7 @@
 {
 	"name": "@vyke/results",
 	"type": "module",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Collection of helpers to work with the Result type in TypeScript",
 	"author": "Jose Albizures <jose@albizures.com> (https://albizures.com/)",
 	"license": "MIT",
@@ -33,6 +33,7 @@
 		"eslint": "^8.55.0",
 		"knip": "^3.5.0",
 		"npm-run-all": "^4.1.5",
+		"standard-version": "^9.5.0",
 		"typescript": "^5.3.2",
 		"unbuild": "^2.0.0",
 		"vitest": "^1.0.1"
