@@ -146,3 +146,7 @@ const result = await Promise.resolve(Ok(123))
 //     ^? Result<string, never>
 	.then(next((value) => Ok(String(value))))
 ```
+
+# Inspiration and Credits
+- [ts-result](https://github.com/vultix/ts-results)
+- [Rust Result](https://www.rust-lang.org)
