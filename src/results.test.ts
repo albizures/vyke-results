@@ -111,8 +111,13 @@ describe('next', () => {
 
 	describe('when one of the next functions returns an error', () => {
 		it('should not run any other  next function', async () => {
-			const addOne = vi.fn((_value: number): Result<number, Error> => {
-				return r.err(new Error('unable to add one'))
+			class MyError extends Error {
+				constructor(message: string) {
+					super(message)
+				}
+			}
+			const addOne = vi.fn((_value: number) => {
+				return r.err(new MyError('unable to add one'))
 			})
 
 			const toString = vi.fn((value: number) => {

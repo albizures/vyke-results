@@ -126,11 +126,11 @@ export function andThen<TValue, TError, TNewValue = TValue, TNewError = TError>(
 	return result
 }
 
-export function next<TValue, TResult extends Result<any, any>>(
-	nextFn: (value: TValue) => TResult | Promise<TResult>,
+export function next<TValue, TNextValue, TNextError>(
+	nextFn: (value: TValue) => Result<TNextValue, TNextError> | Promise<Result<TNextValue, TNextError>>,
 	message?: string,
 ) {
-	return async <TError>(result: Result<TValue, TError>) => {
+	return async <TError>(result: Result<TValue, TError>): Promise<Result<TNextValue, TError | TNextError | Error>> => {
 		if (result.ok) {
 			const nextResult = await nextFn(result.value)
 
