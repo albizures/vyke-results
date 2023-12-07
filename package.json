@@ -2,6 +2,7 @@
 	"name": "@vyke/results",
 	"type": "module",
 	"version": "0.0.3",
+	"packageManager": "pnpm@8.11.0",
 	"description": "Collection of helpers to work with the Result type in TypeScript",
 	"author": "Jose Albizures <jose@albizures.com> (https://albizures.com/)",
 	"license": "MIT",
