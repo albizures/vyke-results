@@ -26,8 +26,10 @@
 		"test:unit": "vitest run",
 		"test:unit:dev": "vitest",
 		"test:types": "tsc --noEmit",
-		"prepack": "pnpm build",
-		"release": "standard-version -t v && pnpm publish --access public"
+		"release:bump": "standard-version -t v",
+		"release:publish": "pnpm publish --access public",
+		"release:push-tags": "git push --follow-tags origin main",
+		"release": "run-s test build release:bump release:publish release:push-tags"
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^2.4.6",
