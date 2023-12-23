@@ -151,6 +151,38 @@ export function next<TValue, TNextValue, TNextError>(
 	}
 }
 
+/**
+ * Unwraps the promise result return the value or throwing the error
+ * @alias r.toUnwrap
+ * @example
+ * import { Ok, toUnwrap } from '@vyke/results'
+ *
+ * const value = await toUnwrap(Ok(123))
+ * //      ^? number
+ * await toUnwrap(Err(new Error('some error'))) // throws the error
+ */
+export async function toUnwrap<TValue, TError = unknown>(promise: Promise<Result<TValue, TError>>): Promise<TValue> {
+	const data = await promise
+
+	return unwrap(data)
+}
+
+/**
+ * Similar to toUnwrap but with a custom error
+ * @alias r.toExpect
+ * @example
+ * import { Err, Ok, toExpect } from '@vyke/results'
+ *
+ * const value = toExpect(Ok(123), 'some error')
+ * //     ^? number
+ * toExpect(Err(new Error('some error')), 'another error') // throws the error with the mssage `another error`
+ */
+export async function toExpect<TValue, TError, TMessage>(promise: Promise<Result<TValue, TError>>, message: TMessage): Promise<TValue> {
+	const result = await promise
+
+	return expect(result, message)
+}
+
 export const r = {
 	ok: Ok,
 	err: Err,
