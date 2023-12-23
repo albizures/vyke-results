@@ -190,6 +190,8 @@ export const r = {
 	expect,
 	to,
 	andThen,
+	toExpect,
+	toUnwrap,
 	next,
 	config,
 }
