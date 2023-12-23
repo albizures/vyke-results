@@ -8,7 +8,7 @@ Collection of helpers to work with the _*Result*_ type in TypeScript, inspired b
 
 ## Installation
 ```sh
-npm i @vyke/results 
+npm i @vyke/results
 ```
 
 ## Examples
@@ -83,7 +83,6 @@ const result = Err(new Error('some error'))
 > [!NOTE]
 > Error values don't need to be an error, they can be anything
 
-
 ### unwrap
 Unwraps the result return the value or throwing the error
 > [!TIP]
@@ -122,7 +121,6 @@ const result = await to(Promise.resolve(123))
 > [!CAUTION]
 > Notice that Result error type is unknown
 
-
 ## andThen
 Converts a promise to a result
 > [!TIP]
@@ -133,7 +131,6 @@ import { Ok, andThen } from '@vyke/results'
 const result = andThen(Ok(123), (value) => Ok(String(value)))
 //      ^? Result<number, never>
 ```
-
 
 ## next
 Similar to andThen, but to create a function to be used in a _then_ function
