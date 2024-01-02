@@ -121,7 +121,7 @@ const result = await to(Promise.resolve(123))
 > [!CAUTION]
 > Notice that Result error type is unknown
 
-## andThen
+### andThen
 Converts a promise to a result
 > [!TIP]
 > alias to `r.andThen`
@@ -132,7 +132,7 @@ const result = andThen(Ok(123), (value) => Ok(String(value)))
 //      ^? Result<number, never>
 ```
 
-## next
+### next
 Similar to andThen, but to create a function to be used in a _then_ function
 > [!TIP]
 > alias to `r.next`
