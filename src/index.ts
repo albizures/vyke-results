@@ -20,9 +20,12 @@ export const config = {
  * Creates a new _ok_ result with the given value
  * @alias r.ok
  * @example
+ * ```ts
  * import { Ok } from '@vyke/results'
  *
  * const result = Ok(123)
+ * //      ^? Result<number, never>
+ * ```
  */
 export function Ok<TValue>(value: TValue): Result<TValue, never> {
 	return {
@@ -35,9 +38,14 @@ export function Ok<TValue>(value: TValue): Result<TValue, never> {
  * Creates a new _err_ result with the given error
  * @alias r.err
  * @example
+ * ```ts
  * import { Err } from '@vyke/results'
  *
  * const result = Err(new Error('some error'))
+ * //      ^? Result<never, Error>
+ * ```
+ * > [!NOTE]
+ * > Error values don't need to be an error, they can be anything
  */
 export function Err<TError>(error: TError): Result<never, TError> {
 	return {
@@ -50,11 +58,13 @@ export function Err<TError>(error: TError): Result<never, TError> {
  * Unwraps the result return the value or throwing the error
  * @alias r.unwrap
  * @example
+ * ```ts
  * import { Ok, unwrap } from '@vyke/results'
  *
  * const value = unwrap(Ok(123))
  * //      ^? number
  * unwrap(Err(new Error('some error'))) // throws the error
+ * ```
  */
 export function unwrap<TValue, TError>(result: Result<TValue, TError>): TValue {
 	if (result.ok) {
@@ -68,11 +78,14 @@ export function unwrap<TValue, TError>(result: Result<TValue, TError>): TValue {
  * Similar to unwraps but with a custom error
  * @alias r.expect
  * @example
+ * ```ts
  * import { Err, Ok, expect } from '@vyke/results'
  *
  * const value = expect(Ok(123), 'some error')
  * //     ^? number
+ *
  * expect(Err(new Error('some error')), 'another error') // throws the error with the mssage `another error`
+ * ```
  */
 export function expect<TValue, TError, TMessage>(result: Result<TValue, TError>, message: TMessage): TValue {
 	if (result.ok) {
@@ -84,12 +97,16 @@ export function expect<TValue, TError, TMessage>(result: Result<TValue, TError>,
 
 /**
  * Converts a promise to a result
- * @alias `r.to`
+ * @alias r.to
  * @example
+ * ```ts
  * import { to } from '@vyke/results'
  *
  * const result = await to(Promise.resolve(123))
  * //     ^? Result<number, unknown>
+ * ```
+ * > [!CAUTION]
+ * > Notice that Result error type is unknown
  */
 export async function to<TValue, TError = unknown>(promise: Promise<TValue>): Promise<Result<TValue, TError>> {
 	try {
@@ -107,13 +124,14 @@ export async function to<TValue, TError = unknown>(promise: Promise<TValue>): Pr
 
 /**
  * Converts a promise to a result
- * @alias `r.andThen`
+ * @alias r.andThen
  * @example
+ * ```ts
  * import { Ok, andThen } from '@vyke/results'
  *
- * const result = andThen(Ok(123), (value) => {
- * 	return Ok(String(value))
- * })
+ * const result = andThen(Ok(123), (value) => Ok(String(value)))
+ * //      ^? Result<number, never>
+ * ```
  */
 export function andThen<TValue, TError, TNewValue = TValue, TNewError = TError>(
 	result: Result<TValue, TError>,
@@ -126,6 +144,18 @@ export function andThen<TValue, TError, TNewValue = TValue, TNewError = TError>(
 	return result
 }
 
+/**
+ * Similar to andThen, but to create a function to be used in a _then_ function
+ * @alias r.next
+ * @example
+ * ```ts
+ * import { next, to } from '@vyke/results'
+ *
+ * const result = await Promise.resolve(Ok(123))
+ * //     ^? Result<string, never>
+ * 	.then(next((value) => Ok(String(value))))
+ * ```
+ */
 export function next<TValue, TNextValue, TNextError>(
 	nextFn: (value: TValue) => Result<TNextValue, TNextError> | Promise<Result<TNextValue, TNextError>>,
 	message?: string,
@@ -155,11 +185,13 @@ export function next<TValue, TNextValue, TNextError>(
  * Unwraps the promise result return the value or throwing the error
  * @alias r.toUnwrap
  * @example
+ * ```ts
  * import { Ok, toUnwrap } from '@vyke/results'
  *
  * const value = await toUnwrap(Ok(123))
  * //      ^? number
  * await toUnwrap(Err(new Error('some error'))) // throws the error
+ * ```
  */
 export async function toUnwrap<TValue, TError = unknown>(promise: Promise<Result<TValue, TError>>): Promise<TValue> {
 	const data = await promise
@@ -171,11 +203,13 @@ export async function toUnwrap<TValue, TError = unknown>(promise: Promise<Result
  * Similar to toUnwrap but with a custom error
  * @alias r.toExpect
  * @example
+ * ```ts
  * import { Err, Ok, toExpect } from '@vyke/results'
  *
  * const value = toExpect(Ok(123), 'some error')
  * //     ^? number
  * toExpect(Err(new Error('some error')), 'another error') // throws the error with the mssage `another error`
+ * ```
  */
 export async function toExpect<TValue, TError, TMessage>(promise: Promise<Result<TValue, TError>>, message: TMessage): Promise<TValue> {
 	const result = await promise

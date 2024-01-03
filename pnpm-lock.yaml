@@ -8,6 +8,9 @@ devDependencies:
   '@antfu/eslint-config':
     specifier: ^2.4.6
     version: 2.4.6(@vue/compiler-sfc@3.3.13)(eslint@8.56.0)(typescript@5.3.3)(vitest@1.1.0)
+  '@vyke/tsdocs':
+    specifier: ^0.0.3
+    version: 0.0.3(typescript@5.3.3)
   eslint:
     specifier: ^8.56.0
     version: 8.56.0
@@ -1483,6 +1486,26 @@ packages:
 
   /@vue/shared@3.3.13:
     resolution: {integrity: sha512-/zYUwiHD8j7gKx2argXEMCUXVST6q/21DFU0sTfNX0URJroCe3b1UF6vLJ3lQDfLNIiiRl2ONp7Nh5UVWS6QnA==}
+    dev: true
+
+  /@vyke/results@0.0.5:
+    resolution: {integrity: sha512-Ug76jOWvYofttvYhk+Y25LZItD5ImiEclrXCcDCQEVFt+nr3HA1cXGZGzf1MuYNhz72ghX0AdDykXPKW+NmCfw==}
+    dev: true
+
+  /@vyke/sola@0.0.5:
+    resolution: {integrity: sha512-7Us7C3sdagARBy2PdOn3ffEcYE31kPYLJ3q1LkZaHIrCOCRiwkC8nPnQwhV1v/WmQ2rV4tqguYPs+J0FUc9oSw==}
+    dev: true
+
+  /@vyke/tsdocs@0.0.3(typescript@5.3.3):
+    resolution: {integrity: sha512-NyAb2PPuwJmUjpUJt5MpIwIV12sFUNda5BHoxG3l8+viCfDPF/CCiN2axMrE1I4cf7HU1202E4Urnnw39J0UTQ==}
+    hasBin: true
+    peerDependencies:
+      typescript: ^5.*
+    dependencies:
+      '@vyke/results': 0.0.5
+      '@vyke/sola': 0.0.5
+      citty: 0.1.5
+      typescript: 5.3.3
     dev: true
 
   /@zkochan/retry@0.2.0:

@@ -59,9 +59,9 @@ else {
 ```
 
 ## API
-
 ### Ok
 Creates a new _ok_ result with the given value
+> [!TIP]
 > alias to `r.ok`
 ```ts
 import { Ok } from '@vyke/results'
@@ -142,6 +142,30 @@ import { next, to } from '@vyke/results'
 const result = await Promise.resolve(Ok(123))
 //     ^? Result<string, never>
 	.then(next((value) => Ok(String(value))))
+```
+
+### toUnwrap
+Unwraps the promise result return the value or throwing the error
+> [!TIP]
+> alias to `r.toUnwrap`
+```ts
+import { Ok, toUnwrap } from '@vyke/results'
+
+const value = await toUnwrap(Ok(123))
+//      ^? number
+await toUnwrap(Err(new Error('some error'))) // throws the error
+```
+
+### toExpect
+Similar to toUnwrap but with a custom error
+> [!TIP]
+> alias to `r.toExpect`
+```ts
+import { Err, Ok, toExpect } from '@vyke/results'
+
+const value = toExpect(Ok(123), 'some error')
+//     ^? number
+toExpect(Err(new Error('some error')), 'another error') // throws the error with the mssage `another error`
 ```
 
 # Inspiration and Credits
