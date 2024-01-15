@@ -3,8 +3,7 @@
 		@vyke/results
 	</h1>
 </div>
-
-Collection of helpers to work with the _*Result*_ type in TypeScript, inspired by the Rust Result pattern and ts-results. It simplifies error handling and enhances the management of asynchronous functions, offering a clean and efficient approach.
+Functional and tiny (<1kb) implementation of Rust _*Result*_ type in TypeScript inspired by ts-results. It simplifies error handling and enhances the management of asynchronous functions, offering a clean and efficient approach.
 
 ## Installation
 ```sh
@@ -14,7 +13,7 @@ npm i @vyke/results
 ## Examples
 ```ts
 import * as fs from 'node:fs'
-import { r } from '@vyke/results'
+import { r } from '@vyke/results/r'
 
 function readFile(filename: string) {
 	try {
@@ -37,7 +36,7 @@ Using promises
 
 ```ts
 import * as fs from 'node:fs/promises'
-import { r } from '@vyke/results'
+import { r } from '@vyke/results/r'
 
 async function readFile(filename: string) {
 	const result = await r.to(fs.readFile(filename))
@@ -62,7 +61,7 @@ else {
 ### Ok
 Creates a new _ok_ result with the given value
 > [!TIP]
-> alias to `r.ok`
+> alias of `r.ok`
 ```ts
 import { Ok } from '@vyke/results'
 
@@ -73,7 +72,7 @@ const result = Ok(123)
 ### Err
 Creates a new _err_ result with the given error
 > [!TIP]
-> alias to `r.err`
+> alias of `r.err`
 ```ts
 import { Err } from '@vyke/results'
 
@@ -86,7 +85,7 @@ const result = Err(new Error('some error'))
 ### unwrap
 Unwraps the result return the value or throwing the error
 > [!TIP]
-> alias to `r.unwrap`
+> alias of `r.unwrap`
 ```ts
 import { Ok, unwrap } from '@vyke/results'
 
@@ -98,7 +97,7 @@ unwrap(Err(new Error('some error'))) // throws the error
 ### expect
 Similar to unwraps but with a custom error
 > [!TIP]
-> alias to `r.expect`
+> alias of `r.expect`
 ```ts
 import { Err, Ok, expect } from '@vyke/results'
 
@@ -111,7 +110,7 @@ expect(Err(new Error('some error')), 'another error') // throws the error with t
 ### to
 Converts a promise to a result
 > [!TIP]
-> alias to `r.to`
+> alias of `r.to`
 ```ts
 import { to } from '@vyke/results'
 
@@ -124,7 +123,7 @@ const result = await to(Promise.resolve(123))
 ### andThen
 Converts a promise to a result
 > [!TIP]
-> alias to `r.andThen`
+> alias of `r.andThen`
 ```ts
 import { Ok, andThen } from '@vyke/results'
 
@@ -135,7 +134,7 @@ const result = andThen(Ok(123), (value) => Ok(String(value)))
 ### next
 Similar to andThen, but to create a function to be used in a _then_ function
 > [!TIP]
-> alias to `r.next`
+> alias of `r.next`
 ```ts
 import { next, to } from '@vyke/results'
 
@@ -147,7 +146,7 @@ const result = await Promise.resolve(Ok(123))
 ### toUnwrap
 Unwraps the promise result return the value or throwing the error
 > [!TIP]
-> alias to `r.toUnwrap`
+> alias of `r.toUnwrap`
 ```ts
 import { Ok, toUnwrap } from '@vyke/results'
 
@@ -159,7 +158,7 @@ await toUnwrap(Err(new Error('some error'))) // throws the error
 ### toExpect
 Similar to toUnwrap but with a custom error
 > [!TIP]
-> alias to `r.toExpect`
+> alias of `r.toExpect`
 ```ts
 import { Err, Ok, toExpect } from '@vyke/results'
 

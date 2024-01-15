@@ -10,6 +10,9 @@ export default antfu(
 	},
 	{
 		rules: {
+			'prefer-const': 'off',
+			'antfu/top-level-function': 'off',
+			'import/no-mutable-exports': 'off',
 			'ts/array-type': ['error', { default: 'generic', readonly: 'generic' }],
 			'ts/consistent-type-definitions': ['error', 'type'],
 			'ts/indent': 'off',

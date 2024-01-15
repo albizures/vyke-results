@@ -12,7 +12,7 @@ export type Result<TValue, TError> = Ok<TValue> | Err<TError>
 
 export type Mapper<TValue, TResult extends Result<any, any>> = (value: TValue) => TResult
 
-export const config = {
+export let config = {
 	verbose: false,
 }
 
@@ -27,7 +27,7 @@ export const config = {
  * //      ^? Result<number, never>
  * ```
  */
-export function Ok<TValue>(value: TValue): Result<TValue, never> {
+export let Ok = <TValue>(value: TValue): Result<TValue, never> => {
 	return {
 		value,
 		ok: true,
@@ -47,7 +47,7 @@ export function Ok<TValue>(value: TValue): Result<TValue, never> {
  * > [!NOTE]
  * > Error values don't need to be an error, they can be anything
  */
-export function Err<TError>(error: TError): Result<never, TError> {
+export let Err = <TError>(error: TError): Result<never, TError> => {
 	return {
 		value: error,
 		ok: false,
@@ -66,7 +66,7 @@ export function Err<TError>(error: TError): Result<never, TError> {
  * unwrap(Err(new Error('some error'))) // throws the error
  * ```
  */
-export function unwrap<TValue, TError>(result: Result<TValue, TError>): TValue {
+export let unwrap = <TValue, TError>(result: Result<TValue, TError>): TValue => {
 	if (result.ok) {
 		return result.value
 	}
@@ -87,7 +87,7 @@ export function unwrap<TValue, TError>(result: Result<TValue, TError>): TValue {
  * expect(Err(new Error('some error')), 'another error') // throws the error with the mssage `another error`
  * ```
  */
-export function expect<TValue, TError, TMessage>(result: Result<TValue, TError>, message: TMessage): TValue {
+export let expect = <TValue, TError, TMessage>(result: Result<TValue, TError>, message: TMessage): TValue => {
 	if (result.ok) {
 		return result.value
 	}
@@ -108,7 +108,7 @@ export function expect<TValue, TError, TMessage>(result: Result<TValue, TError>,
  * > [!CAUTION]
  * > Notice that Result error type is unknown
  */
-export async function to<TValue, TError = unknown>(promise: Promise<TValue>): Promise<Result<TValue, TError>> {
+export let to = async <TValue, TError = unknown>(promise: Promise<TValue>): Promise<Result<TValue, TError>> => {
 	try {
 		const data = await promise
 
@@ -133,10 +133,10 @@ export async function to<TValue, TError = unknown>(promise: Promise<TValue>): Pr
  * //      ^? Result<number, never>
  * ```
  */
-export function andThen<TValue, TError, TNewValue = TValue, TNewError = TError>(
+export let andThen = <TValue, TError, TNewValue = TValue, TNewError = TError>(
 	result: Result<TValue, TError>,
 	fn: Mapper<TValue, Result<TNewValue, TNewError>>,
-): Err<TError> | Result<TNewValue, TNewError> {
+): Err<TError> | Result<TNewValue, TNewError> => {
 	if (result.ok) {
 		return fn(result.value)
 	}
@@ -156,10 +156,10 @@ export function andThen<TValue, TError, TNewValue = TValue, TNewError = TError>(
  * 	.then(next((value) => Ok(String(value))))
  * ```
  */
-export function next<TValue, TNextValue, TNextError>(
+export let next = <TValue, TNextValue, TNextError>(
 	nextFn: (value: TValue) => Result<TNextValue, TNextError> | Promise<Result<TNextValue, TNextError>>,
 	message?: string,
-) {
+) => {
 	return async <TError>(result: Result<TValue, TError>): Promise<Result<TNextValue, TError | TNextError | Error>> => {
 		if (result.ok) {
 			const nextResult = await nextFn(result.value)
@@ -193,7 +193,7 @@ export function next<TValue, TNextValue, TNextError>(
  * await toUnwrap(Err(new Error('some error'))) // throws the error
  * ```
  */
-export async function toUnwrap<TValue, TError = unknown>(promise: Promise<Result<TValue, TError>>): Promise<TValue> {
+export let toUnwrap = async <TValue, TError = unknown>(promise: Promise<Result<TValue, TError>>): Promise<TValue> => {
 	const data = await promise
 
 	return unwrap(data)
@@ -211,21 +211,8 @@ export async function toUnwrap<TValue, TError = unknown>(promise: Promise<Result
  * toExpect(Err(new Error('some error')), 'another error') // throws the error with the mssage `another error`
  * ```
  */
-export async function toExpect<TValue, TError, TMessage>(promise: Promise<Result<TValue, TError>>, message: TMessage): Promise<TValue> {
+export let toExpect = async<TValue, TError, TMessage>(promise: Promise<Result<TValue, TError>>, message: TMessage): Promise<TValue> => {
 	const result = await promise
 
 	return expect(result, message)
-}
-
-export const r = {
-	ok: Ok,
-	err: Err,
-	unwrap,
-	expect,
-	to,
-	andThen,
-	toExpect,
-	toUnwrap,
-	next,
-	config,
 }
