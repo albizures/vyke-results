@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { r } from './'
+import { r } from './r'
 
 r.config.verbose = false
 
