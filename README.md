@@ -170,3 +170,9 @@ toExpect(Err(new Error('some error')), 'another error') // throws the error with
 # Inspiration and Credits
 - [ts-result](https://github.com/vultix/ts-results)
 - [Rust Result](https://www.rust-lang.org)
+
+# Others vyke projects
+- [Flowmodoro app by vyke](https://github.com/albizures/vyke-flowmodoro)
+- [@vyke/tsdocs](https://github.com/albizures/vyke-tsdocs)
+- [@vyke/val](https://github.com/albizures/vyke-val)
+- [@vyke/dom](https://github.com/albizures/vyke-dom)
