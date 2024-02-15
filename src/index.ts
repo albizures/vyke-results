@@ -86,10 +86,10 @@ export let unwrap = <TValue, TError>(result: Result<TValue, TError>): TValue => 
  * unwrapOr(Err(new Error('some error')), 10) // returns 10 instead of the error
  * ```
  */
-export let unwrapOr = <TValue, TError>(
+export let unwrapOr = <TValue, TError, TDefault>(
 	result: Result<TValue, TError>,
-	defaultValue: TValue,
-): TValue => {
+	defaultValue: TDefault,
+): TValue | TDefault => {
 	if (result.ok) {
 		return result.value
 	}
@@ -234,10 +234,10 @@ export let toUnwrap = async <TValue>(promise: Promise<TValue>): Promise<TValue> 
  * await toUnwrapOr(Err(new Error('some error')), 456) // returns 456 instead of throwing
  * ```
  */
-export let toUnwrapOr = async <TValue>(
+export let toUnwrapOr = async <TValue, TDefault>(
 	promise: Promise<TValue>,
-	defaultValue: TValue,
-): Promise<TValue> => {
+	defaultValue: TDefault,
+): Promise<TValue | TDefault> => {
 	const data = await to(promise)
 
 	return unwrapOr(data, defaultValue)
