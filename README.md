@@ -156,7 +156,7 @@ const result = await Promise.resolve(Ok(123))
 ```
 
 ### toUnwrap
-Unwraps the promise result return the value or throwing the error
+Awaits for the promise and unwraps it then returns the value or throws the error
 > [!TIP]
 > alias of `r.toUnwrap`
 ```ts
@@ -167,6 +167,18 @@ const value = await toUnwrap(Ok(123))
 await toUnwrap(Err(new Error('some error'))) // throws the error
 ```
 
+### toUnwrapOr
+Awaits for the promise and unwraps it then returns the value or the default one
+> [!TIP]
+> alias of `r.toUnwrapOr`
+```ts
+import { Ok, toUnwrapOr } from '@vyke/results'
+
+const value = await toUnwrapOr(Ok(123), 345)
+//      ^? number
+await toUnwrapOr(Err(new Error('some error')), 456) // returns 456 instead of throwing
+```
+
 ### toExpect
 Similar to toUnwrap but with a custom error
 > [!TIP]
@@ -174,9 +186,9 @@ Similar to toUnwrap but with a custom error
 ```ts
 import { Err, Ok, toExpect } from '@vyke/results'
 
-const value = toExpect(Ok(123), 'some error')
+const value = await toExpect(Ok(123), 'some error')
 //     ^? number
-toExpect(Err(new Error('some error')), 'another error') // throws the error with the mssage `another error`
+await toExpect(Err(new Error('some error')), 'another error') // throws the error with the message `another error`
 ```
 
 ## Others vyke projects

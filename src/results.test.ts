@@ -4,11 +4,11 @@ import { r } from './r'
 r.config.verbose = false
 
 it('should return an ok result', () => {
-	expect(r.ok(true)).toEqual({ value: true, ok: true })
+	expect(r.ok('123')).toEqual({ value: '123', ok: true })
 })
 
 it('should return an err result ', () => {
-	expect(r.err(true)).toEqual({ value: true, ok: false })
+	expect(r.err('345')).toEqual({ value: '345', ok: false })
 })
 
 describe('unwrap', () => {
@@ -22,6 +22,19 @@ describe('unwrap', () => {
 		const result = r.ok('123')
 
 		expect(r.unwrap(result)).toBe('123')
+	})
+})
+
+describe('unwrapOr', () => {
+	it('should unwrap the value', () => {
+		const result = r.ok('123')
+
+		expect(r.unwrapOr(result, '345')).toBe('123')
+	})
+	it('should return default value', () => {
+		const result = r.err('123')
+
+		expect(r.unwrapOr(result, '345')).toBe('345')
 	})
 })
 
@@ -134,5 +147,58 @@ describe('next', () => {
 			expect(addOne).toHaveBeenCalled()
 			expect(toString).not.toHaveBeenCalled()
 		})
+	})
+})
+
+describe('toUnwrap', () => {
+	it('should throw the error', () => {
+		const promise = Promise.reject(new Error('some error'))
+
+		expect(async () => {
+			await r.toUnwrap(promise)
+		}).rejects.toThrow('some error')
+	})
+
+	it('should unwrap the value', async () => {
+		const promise = Promise.resolve('123')
+
+		const value = await r.toUnwrap(promise)
+
+		expect(value).toMatchObject('123')
+	})
+})
+
+describe('toUnwrapOr', () => {
+	it('should return the default value', async () => {
+		const promise = Promise.reject(new Error('some error'))
+
+		const value = await r.toUnwrapOr(promise, 'default')
+		expect(value).toBe('default')
+	})
+
+	it('should unwrap the value', async () => {
+		const promise = Promise.resolve('123')
+
+		const value = await r.toUnwrapOr(promise, 'default')
+
+		expect(value).toBe('123')
+	})
+})
+
+describe('toExpect', () => {
+	it('should throw the error', () => {
+		const promise = Promise.reject(new Error('some error'))
+
+		expect(async () => {
+			await r.toExpect(promise, 'another error')
+		}).rejects.toThrow('another error')
+	})
+
+	it('should unwrap the value', async () => {
+		const promise = Promise.resolve('123')
+
+		const value = await r.toExpect(promise, 'default')
+
+		expect(value).toMatchObject('123')
 	})
 })

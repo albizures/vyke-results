@@ -205,7 +205,7 @@ export let next = <TValue, TNextValue, TNextError>(
 }
 
 /**
- * Unwraps the promise result return the value or throwing the error
+ * Awaits for the promise and unwraps it then returns the value or throws the error
  * @alias r.toUnwrap
  * @example
  * ```ts
@@ -216,10 +216,31 @@ export let next = <TValue, TNextValue, TNextError>(
  * await toUnwrap(Err(new Error('some error'))) // throws the error
  * ```
  */
-export let toUnwrap = async <TValue, TError = unknown>(promise: Promise<Result<TValue, TError>>): Promise<TValue> => {
-	const data = await promise
+export let toUnwrap = async <TValue>(promise: Promise<TValue>): Promise<TValue> => {
+	const data = await to(promise)
 
 	return unwrap(data)
+}
+
+/**
+ * Awaits for the promise and unwraps it then returns the value or the default one
+ * @alias r.toUnwrapOr
+ * @example
+ * ```ts
+ * import { Ok, toUnwrapOr } from '@vyke/results'
+ *
+ * const value = await toUnwrapOr(Ok(123), 345)
+ * //      ^? number
+ * await toUnwrapOr(Err(new Error('some error')), 456) // returns 456 instead of throwing
+ * ```
+ */
+export let toUnwrapOr = async <TValue>(
+	promise: Promise<TValue>,
+	defaultValue: TValue,
+): Promise<TValue> => {
+	const data = await to(promise)
+
+	return unwrapOr(data, defaultValue)
 }
 
 /**
@@ -229,13 +250,13 @@ export let toUnwrap = async <TValue, TError = unknown>(promise: Promise<Result<T
  * ```ts
  * import { Err, Ok, toExpect } from '@vyke/results'
  *
- * const value = toExpect(Ok(123), 'some error')
+ * const value = await toExpect(Ok(123), 'some error')
  * //     ^? number
- * toExpect(Err(new Error('some error')), 'another error') // throws the error with the mssage `another error`
+ * await toExpect(Err(new Error('some error')), 'another error') // throws the error with the message `another error`
  * ```
  */
-export let toExpect = async<TValue, TError, TMessage>(promise: Promise<Result<TValue, TError>>, message: TMessage): Promise<TValue> => {
-	const result = await promise
+export let toExpect = async<TValue, TMessage>(promise: Promise<TValue>, message: TMessage): Promise<TValue> => {
+	const result = await to(promise)
 
 	return expect(result, message)
 }
