@@ -83,7 +83,7 @@ const result = Err(new Error('some error'))
 > Error values don't need to be an error, they can be anything
 
 ### unwrap
-Unwraps the result return the value or throwing the error
+Unwraps the result value or throws the error
 > [!TIP]
 > alias of `r.unwrap`
 ```ts
@@ -92,6 +92,18 @@ import { Ok, unwrap } from '@vyke/results'
 const value = unwrap(Ok(123))
 //      ^? number
 unwrap(Err(new Error('some error'))) // throws the error
+```
+
+### unwrapOr
+Unwraps the result value or returns the default value
+> [!TIP]
+> alias of `r.unwrapOr`
+```ts
+import { Ok, unwrapOr } from '@vyke/results'
+
+const value = unwrapOr(Ok(123), 10)
+//      ^? number
+unwrapOr(Err(new Error('some error')), 10) // returns 10 instead of the error
 ```
 
 ### expect
@@ -104,7 +116,7 @@ import { Err, Ok, expect } from '@vyke/results'
 const value = expect(Ok(123), 'some error')
 //     ^? number
 
-expect(Err(new Error('some error')), 'another error') // throws the error with the mssage `another error`
+expect(Err(new Error('some error')), 'another error') // throws the error with the message `another error`
 ```
 
 ### to
@@ -167,11 +179,7 @@ const value = toExpect(Ok(123), 'some error')
 toExpect(Err(new Error('some error')), 'another error') // throws the error with the mssage `another error`
 ```
 
-# Inspiration and Credits
-- [ts-result](https://github.com/vultix/ts-results)
-- [Rust Result](https://www.rust-lang.org)
-
-# Others vyke projects
+## Others vyke projects
 - [Flowmodoro app by vyke](https://github.com/albizures/vyke-flowmodoro)
 - [@vyke/tsdocs](https://github.com/albizures/vyke-tsdocs)
 - [@vyke/val](https://github.com/albizures/vyke-val)

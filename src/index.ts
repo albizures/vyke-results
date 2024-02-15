@@ -55,7 +55,7 @@ export let Err = <TError>(error: TError): Result<never, TError> => {
 }
 
 /**
- * Unwraps the result return the value or throwing the error
+ * Unwraps the result value or throws the error
  * @alias r.unwrap
  * @example
  * ```ts
@@ -75,6 +75,29 @@ export let unwrap = <TValue, TError>(result: Result<TValue, TError>): TValue => 
 }
 
 /**
+ * Unwraps the result value or returns the default value
+ * @alias r.unwrapOr
+ * @example
+ * ```ts
+ * import { Ok, unwrapOr } from '@vyke/results'
+ *
+ * const value = unwrapOr(Ok(123), 10)
+ * //      ^? number
+ * unwrapOr(Err(new Error('some error')), 10) // returns 10 instead of the error
+ * ```
+ */
+export let unwrapOr = <TValue, TError>(
+	result: Result<TValue, TError>,
+	defaultValue: TValue,
+): TValue => {
+	if (result.ok) {
+		return result.value
+	}
+
+	return defaultValue
+}
+
+/**
  * Similar to unwraps but with a custom error
  * @alias r.expect
  * @example
@@ -84,7 +107,7 @@ export let unwrap = <TValue, TError>(result: Result<TValue, TError>): TValue => 
  * const value = expect(Ok(123), 'some error')
  * //     ^? number
  *
- * expect(Err(new Error('some error')), 'another error') // throws the error with the mssage `another error`
+ * expect(Err(new Error('some error')), 'another error') // throws the error with the message `another error`
  * ```
  */
 export let expect = <TValue, TError, TMessage>(result: Result<TValue, TError>, message: TMessage): TValue => {
