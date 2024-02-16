@@ -100,7 +100,7 @@ export let next = <TValue, TNextValue, TNextError>(
  * await toUnwrap(Err(new Error('some error'))) // throws the error
  * ```
  */
-export let toUnwrap = async <TValue>(promise: Promise<TValue>): Promise<TValue> => {
+export let toUnwrap = async <TValue>(promise: Promise<TValue>) => {
 	const data = await to(promise)
 
 	return unwrap(data)
@@ -121,7 +121,7 @@ export let toUnwrap = async <TValue>(promise: Promise<TValue>): Promise<TValue> 
 export let toUnwrapOr = async <TValue, TDefault>(
 	promise: Promise<TValue>,
 	defaultValue: NonNullable<TDefault>,
-): Promise<TValue | TDefault> => {
+) => {
 	const data = await to(promise)
 
 	return unwrapOr(data, defaultValue)
@@ -139,7 +139,7 @@ export let toUnwrapOr = async <TValue, TDefault>(
  * await toExpect(Err(new Error('some error')), 'another error') // throws the error with the message `another error`
  * ```
  */
-export let toExpect = async<TValue, TMessage>(promise: Promise<TValue>, message: TMessage): Promise<TValue> => {
+export let toExpect = async<TValue, TMessage>(promise: Promise<TValue>, message: TMessage) => {
 	const result = await to(promise)
 
 	return expect(result, message)
