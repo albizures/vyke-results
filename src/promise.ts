@@ -1,4 +1,4 @@
-import { Err, ResultError, Ok, type Result, config, expect, unwrap, unwrapOr } from './result'
+import { Err, Ok, type Result, ResultError, config, expect, unwrap, unwrapOr } from './result'
 
 export type Mapper<TValue, TResult extends Result<any, any>> = (value: TValue) => TResult
 
@@ -152,7 +152,7 @@ export let toExpect = async<TValue, TMessage>(promise: Promise<TValue>, message:
  * ```ts
  * import { Ok, toCapture, unwrap } from '@vyke/results'
  *
- * const result1 = await toCapture(Promise.resolve(Ok(123)))  // only returns the result
+ * const result1 = await toCapture(Promise.resolve(Ok(123))) // only returns the result
  * //     ^? Result<number, unknown>
  * const result2 = await toCapture(async () => {
  * //     ^? Result<unknown, unknown>
