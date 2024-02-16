@@ -1,4 +1,4 @@
-import * as all from '.'
+import * as all from './'
 
 export let r = {
 	...all,

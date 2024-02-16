@@ -119,6 +119,22 @@ const value = expect(Ok(123), 'some error')
 expect(Err(new Error('some error')), 'another error') // throws the error with the message `another error`
 ```
 
+### capture
+Runs the given function and always returns a result,
+in case of error it will _capture_ and convert to result if needed
+> [!TIP]
+> alias of `r.capture`
+```ts
+import { Err, Ok, capture, unwrap } from '@vyke/results'
+
+const result1 = capture(() => Ok(123)) // only returns the result
+//     ^? Result<number, unknown>
+
+const result2 = capture(() => {
+	unwrap(Err(new Error('some error')))
+})
+```
+
 ### to
 Converts a promise to a result
 > [!TIP]
@@ -144,7 +160,7 @@ const result = andThen(Ok(123), (value) => Ok(String(value)))
 ```
 
 ### next
-Similar to andThen, but to create a function to be used in a _then_ function
+Similar to andThen, but to create a function to be used as a _then_ callback
 > [!TIP]
 > alias of `r.next`
 ```ts
@@ -189,6 +205,21 @@ import { Err, Ok, toExpect } from '@vyke/results'
 const value = await toExpect(Ok(123), 'some error')
 //     ^? number
 await toExpect(Err(new Error('some error')), 'another error') // throws the error with the message `another error`
+```
+
+### toCapture
+Similar to capture but for promises
+> [!TIP]
+> alias of `r.toCapture`
+```ts
+import { Ok, toCapture, unwrap } from '@vyke/results'
+
+const result1 = await toCapture(Promise.resolve(Ok(123))) // only returns the result
+//     ^? Result<number, unknown>
+const result2 = await toCapture(async () => {
+//     ^? Result<unknown, unknown>
+	unwrap(Err(new Error('some error')))
+}) // will return the error thrown by unwrap
 ```
 
 ## Others vyke projects

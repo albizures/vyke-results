@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from 'vitest'
+import { assertType, describe, expect, it, vi } from 'vitest'
 import { r } from './r'
+import { ResultError } from '.'
 
 r.config.verbose = false
 
@@ -35,6 +36,13 @@ describe('unwrapOr', () => {
 		const result = r.err('123')
 
 		expect(r.unwrapOr(result, '345')).toBe('345')
+
+		const result2 = r.ok<number | null>(null)
+
+		const value = r.unwrapOr(result2, 0)
+
+		assertType<number>(value)
+		expect(value).toBe(0)
 	})
 })
 
@@ -200,5 +208,49 @@ describe('toExpect', () => {
 		const value = await r.toExpect(promise, 'default')
 
 		expect(value).toMatchObject('123')
+	})
+})
+
+describe('capture', () => {
+	it('should capture/catch the error', () => {
+		function fnWithError() {
+			const result1 = r.ok('123')
+
+			const value1 = r.unwrap(result1)
+
+			expect(value1).toBe('123')
+
+			const result2 = r.err(new Error('some error'))
+
+			const value2 = r.unwrap(result2)
+
+			return r.ok(value2)
+		}
+
+		const result = r.capture(fnWithError)
+
+		expect(result).instanceOf(ResultError)
+	})
+})
+
+describe('toCapture', () => {
+	it('should resolve the result promise', async () => {
+		async function fnWithError() {
+			const result1 = r.ok('123')
+
+			const value1 = r.unwrap(result1)
+
+			expect(value1).toBe('123')
+
+			const result2 = r.err(new Error('some error'))
+
+			const value2 = r.unwrap(result2)
+
+			return r.ok(value2)
+		}
+
+		const result = await r.toCapture(fnWithError())
+
+		expect(result).instanceOf(ResultError)
 	})
 })
