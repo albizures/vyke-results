@@ -168,7 +168,7 @@ describe('toUnwrap', () => {
 	})
 
 	it('should unwrap the value', async () => {
-		const promise = Promise.resolve('123')
+		const promise = Promise.resolve(r.ok('123'))
 
 		const value = await r.toUnwrap(promise)
 
@@ -185,7 +185,7 @@ describe('toUnwrapOr', () => {
 	})
 
 	it('should unwrap the value', async () => {
-		const promise = Promise.resolve('123')
+		const promise = Promise.resolve(r.ok('123'))
 
 		const value = await r.toUnwrapOr(promise, 'default')
 
