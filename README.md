@@ -171,30 +171,6 @@ const result = await Promise.resolve(Ok(123))
 	.then(next((value) => Ok(String(value))))
 ```
 
-### toUnwrap
-Awaits for the promise and unwraps it then returns the value or throws the error
-> [!TIP]
-> alias of `r.toUnwrap`
-```ts
-import { Ok, toUnwrap } from '@vyke/results'
-
-const value = await toUnwrap(Ok(123))
-//      ^? number
-await toUnwrap(Err(new Error('some error'))) // throws the error
-```
-
-### toUnwrapOr
-Awaits for the promise and unwraps it then returns the value or the default one
-> [!TIP]
-> alias of `r.toUnwrapOr`
-```ts
-import { Ok, toUnwrapOr } from '@vyke/results'
-
-const value = await toUnwrapOr(Ok(123), 345)
-//      ^? number
-await toUnwrapOr(Err(new Error('some error')), 456) // returns 456 instead of throwing
-```
-
 ### toExpect
 Similar to toUnwrap but with a custom error
 > [!TIP]
@@ -220,6 +196,30 @@ const result2 = await toCapture(async () => {
 //     ^? Result<unknown, unknown>
 	unwrap(Err(new Error('some error')))
 }) // will return the error thrown by unwrap
+```
+
+### toUnwrap
+Awaits for the promise and unwraps it then returns the value or throws the error
+> [!TIP]
+> alias of `r.toUnwrap`
+```ts
+import { Ok, toUnwrap } from '@vyke/results'
+
+const value = await toUnwrap(Ok(123))
+//      ^? number
+await toUnwrap(Err(new Error('some error'))) // throws the error
+```
+
+### toUnwrapOr
+Awaits for the promise and unwraps it then returns the value or the default one
+> [!TIP]
+> alias of `r.toUnwrapOr`
+```ts
+import { Ok, toUnwrapOr } from '@vyke/results'
+
+const value = await toUnwrapOr(Ok(123), 345)
+//      ^? number
+await toUnwrapOr(Err(new Error('some error')), 456) // returns 456 instead of throwing
 ```
 
 ## Others vyke projects

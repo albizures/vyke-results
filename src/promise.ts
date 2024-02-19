@@ -89,45 +89,6 @@ export let next = <TValue, TNextValue, TNextError>(
 }
 
 /**
- * Awaits for the promise and unwraps it then returns the value or throws the error
- * @alias r.toUnwrap
- * @example
- * ```ts
- * import { Ok, toUnwrap } from '@vyke/results'
- *
- * const value = await toUnwrap(Ok(123))
- * //      ^? number
- * await toUnwrap(Err(new Error('some error'))) // throws the error
- * ```
- */
-export let toUnwrap = async <TValue>(promise: Promise<TValue>) => {
-	const data = await to(promise)
-
-	return unwrap(data)
-}
-
-/**
- * Awaits for the promise and unwraps it then returns the value or the default one
- * @alias r.toUnwrapOr
- * @example
- * ```ts
- * import { Ok, toUnwrapOr } from '@vyke/results'
- *
- * const value = await toUnwrapOr(Ok(123), 345)
- * //      ^? number
- * await toUnwrapOr(Err(new Error('some error')), 456) // returns 456 instead of throwing
- * ```
- */
-export let toUnwrapOr = async <TValue, TDefault>(
-	promise: Promise<TValue>,
-	defaultValue: NonNullable<TDefault>,
-) => {
-	const data = await to(promise)
-
-	return unwrapOr(data, defaultValue)
-}
-
-/**
  * Similar to toUnwrap but with a custom error
  * @alias r.toExpect
  * @example
@@ -173,4 +134,43 @@ export let toCapture = async <TValue, TError = unknown>(promise: Promise<Result<
 
 		return Err(error) as Result<TValue, TError | Error>
 	}
+}
+
+/**
+ * Awaits for the promise and unwraps it then returns the value or throws the error
+ * @alias r.toUnwrap
+ * @example
+ * ```ts
+ * import { Ok, toUnwrap } from '@vyke/results'
+ *
+ * const value = await toUnwrap(Ok(123))
+ * //      ^? number
+ * await toUnwrap(Err(new Error('some error'))) // throws the error
+ * ```
+ */
+export let toUnwrap = async <TValue, TError>(promise: Promise<Result<TValue, TError>>) => {
+	const data = await toCapture(promise)
+
+	return unwrap(data)
+}
+
+/**
+ * Awaits for the promise and unwraps it then returns the value or the default one
+ * @alias r.toUnwrapOr
+ * @example
+ * ```ts
+ * import { Ok, toUnwrapOr } from '@vyke/results'
+ *
+ * const value = await toUnwrapOr(Ok(123), 345)
+ * //      ^? number
+ * await toUnwrapOr(Err(new Error('some error')), 456) // returns 456 instead of throwing
+ * ```
+ */
+export let toUnwrapOr = async <TValue, TError, TDefault>(
+	promise: Promise<Result<TValue, TError>>,
+	defaultValue: NonNullable<TDefault>,
+) => {
+	const data = await toCapture(promise)
+
+	return unwrapOr(data, defaultValue)
 }
