@@ -166,9 +166,9 @@ export let toUnwrap = async <TValue, TError>(promise: Promise<Result<TValue, TEr
  * await toUnwrapOr(Err(new Error('some error')), 456) // returns 456 instead of throwing
  * ```
  */
-export let toUnwrapOr = async <TValue, TError, TDefault>(
+export let toUnwrapOr = async <TValue, TError>(
 	promise: Promise<Result<TValue, TError>>,
-	defaultValue: NonNullable<TDefault>,
+	defaultValue: TValue,
 ) => {
 	const data = await toCapture(promise)
 

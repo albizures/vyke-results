@@ -107,12 +107,12 @@ export let unwrap = <TValue, TError>(result: Result<TValue, TError>): TValue => 
  * unwrapOr(Err(new Error('some error')), 10) // returns 10 instead of the error
  * ```
  */
-export let unwrapOr = <TValue, TError, TDefault>(
+export let unwrapOr = <TValue, TError>(
 	result: Result<TValue, TError>,
-	defaultValue: NonNullable<TDefault>,
-): NonNullable<TValue | TDefault> => {
+	defaultValue: TValue,
+): TValue => {
 	if (result.ok) {
-		return result.value ?? defaultValue
+		return result.value
 	}
 
 	return defaultValue

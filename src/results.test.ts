@@ -1,6 +1,6 @@
 import { assertType, describe, expect, it, vi } from 'vitest'
 import { r } from './r'
-import { ResultError } from '.'
+import { type Result, ResultError } from '.'
 
 r.config.verbose = false
 
@@ -33,16 +33,17 @@ describe('unwrapOr', () => {
 		expect(r.unwrapOr(result, '345')).toBe('123')
 	})
 	it('should return default value', () => {
-		const result = r.err('123')
+		const result: Result<Array<string>, Error> = r.err(new Error('error'))
+		const defaultValue = r.unwrapOr(result, [])
 
-		expect(r.unwrapOr(result, '345')).toBe('345')
+		assertType<Array<string>>(defaultValue)
+		expect(defaultValue).toEqual([])
 
-		const result2 = r.ok<number | null>(null)
+		const result2: Result<number, Error> = r.err(new Error('error'))
+		const defaultValue2 = r.unwrapOr(result2, 0)
 
-		const value = r.unwrapOr(result2, 0)
-
-		assertType<number>(value)
-		expect(value).toBe(0)
+		assertType<number>(defaultValue2)
+		expect(defaultValue2).toBe(0)
 	})
 })
 
@@ -178,10 +179,17 @@ describe('toUnwrap', () => {
 
 describe('toUnwrapOr', () => {
 	it('should return the default value', async () => {
-		const promise = Promise.reject(new Error('some error'))
+		const promise1: Promise<Result<string, Error>> = Promise.reject(new Error('some error'))
+		const value1 = await r.toUnwrapOr(promise1, 'default')
 
-		const value = await r.toUnwrapOr(promise, 'default')
-		expect(value).toBe('default')
+		assertType<string>(value1)
+		expect(value1).toBe('default')
+
+		const promise2: Promise<Result<Array<number>, Error>> = Promise.reject(new Error('some error'))
+		const value2 = await r.toUnwrapOr(promise2, [])
+
+		assertType<Array<number>>(value2)
+		expect(value2).toEqual(value2)
 	})
 
 	it('should unwrap the value', async () => {
