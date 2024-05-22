@@ -246,7 +246,7 @@ type Fn<TValue, TError = unknown> = () => Result<TValue, TError>
  * })
  * ```
  */
-export let capture = <TValue, TError = unknown>(fn: Fn<TValue, TError>) => {
+export let capture = <TValue, TError = unknown>(fn: Fn<TValue, TError>): Result<TValue, TError | unknown> => {
 	try {
 		return fn()
 	}

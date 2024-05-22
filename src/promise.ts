@@ -51,6 +51,8 @@ export let andThen = <TValue, TError, TNewValue = TValue, TNewError = TError>(
 	return result
 }
 
+type NextHandle<TValue, TNextValue, TNextError> = <TError>(result: Result<TValue, TError>) => Promise<Result<TNextValue, TError | TNextError | Error>>
+
 /**
  * Similar to andThen, but to create a function to be used as a _then_ callback
  * @alias r.next
@@ -66,8 +68,8 @@ export let andThen = <TValue, TError, TNewValue = TValue, TNewError = TError>(
 export let next = <TValue, TNextValue, TNextError>(
 	nextFn: (value: TValue) => Result<TNextValue, TNextError> | Promise<Result<TNextValue, TNextError>>,
 	message?: string,
-) => {
-	return async <TError>(result: Result<TValue, TError>): Promise<Result<TNextValue, TError | TNextError | Error>> => {
+): NextHandle<TValue, TNextValue, TNextError> => {
+	return async <TError>(result: Result<TValue, TError>) => {
 		if (IsOk(result)) {
 			const nextResult = await nextFn(result.value)
 
@@ -100,7 +102,7 @@ export let next = <TValue, TNextValue, TNextError>(
  * await toExpect(Err(new Error('some error')), 'another error') // throws the error with the message `another error`
  * ```
  */
-export let toExpect = async<TValue, TMessage>(promise: Promise<TValue>, message: TMessage) => {
+export let toExpect = async<TValue, TMessage>(promise: Promise<TValue>, message: TMessage): Promise<TValue> => {
 	const result = await to(promise)
 
 	return expect(result, message)
@@ -148,7 +150,7 @@ export let toCapture = async <TValue, TError = unknown>(promise: Promise<Result<
  * await toUnwrap(Err(new Error('some error'))) // throws the error
  * ```
  */
-export let toUnwrap = async <TValue, TError>(promise: Promise<Result<TValue, TError>>) => {
+export let toUnwrap = async <TValue, TError>(promise: Promise<Result<TValue, TError>>): Promise<TValue> => {
 	const data = await toCapture(promise)
 
 	return unwrap(data)
@@ -169,7 +171,7 @@ export let toUnwrap = async <TValue, TError>(promise: Promise<Result<TValue, TEr
 export let toUnwrapOr = async <TValue, TError>(
 	promise: Promise<Result<TValue, TError>>,
 	defaultValue: TValue,
-) => {
+): Promise<TValue> => {
 	const data = await toCapture(promise)
 
 	return unwrapOr(data, defaultValue)
