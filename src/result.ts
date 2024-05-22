@@ -1,22 +1,63 @@
-export type Ok<TValue> = {
-	ok: true
+export type ResultStatus = Result<unknown, unknown>['status']
+
+export type OkResult<TValue> = {
+	status: 'success'
 	value: TValue
 }
 
-export type Err<TError> = {
-	ok: false
+export type ErrResult<TError> = {
+	status: 'error'
 	value: TError
 }
 
-export type Result<TValue, TError> = Ok<TValue> | Err<TError>
+export type PendingResult = {
+	status: 'pending'
+}
 
-export let isResult = (result: unknown): result is Result<unknown, unknown> => {
-	return Boolean(
-		result
-		&& typeof result === 'object'
-		&& 'ok' in result
-		&& 'value' in result,
-	)
+export type EmptyResult = {
+	status: 'empty'
+}
+
+export type Result<TValue, TError> = OkResult<TValue> | ErrResult<TError> | PendingResult | EmptyResult
+
+/**
+ * Checks if the given value is a result
+ * @alias r.isResult
+ */
+export let IsResult = (result: unknown): result is Result<unknown, unknown> => {
+	return Boolean(result && typeof result === 'object' && 'status' in result && 'value' in result)
+}
+
+/**
+ * Checks if the result is an _ok_ result
+ * @alias r.isOk
+ */
+export let IsOk = <TValue, TError>(result: Result<TValue, TError>): result is OkResult<TValue> => {
+	return result.status === 'success'
+}
+
+/**
+ * Checks if the result is an _err_ result
+ * @alias r.isErr
+ */
+export let IsErr = <TValue, TError>(result: Result<TValue, TError>): result is ErrResult<TError> => {
+	return result.status === 'error'
+}
+
+/**
+ * Checks if the result is a _empty_ result
+ * @alias r.isEmpty
+ */
+export let IsEmpty = <TValue, TError>(result: Result<TValue, TError>): result is EmptyResult => {
+	return result.status === 'empty'
+}
+
+/**
+ * Checks if the result is a _pending_ result
+ * @alias r.isPending
+ */
+export let IsPending = <TValue, TError>(result: Result<TValue, TError>): result is PendingResult => {
+	return result.status === 'pending'
 }
 
 export let config = {
@@ -37,7 +78,7 @@ export let config = {
 export let Ok = <TValue>(value: TValue): Result<TValue, never> => {
 	return {
 		value,
-		ok: true,
+		status: 'success',
 	}
 }
 
@@ -57,12 +98,56 @@ export let Ok = <TValue>(value: TValue): Result<TValue, never> => {
 export let Err = <TError>(error: TError): Result<never, TError> => {
 	return {
 		value: error,
-		ok: false,
+		status: 'error',
 	}
 }
 
-export class ResultError<TError = unknown> extends Error implements Err<TError> {
-	ok: false = false as const
+/**
+ * Creates a new _empty_ result
+ * @alias r.empty
+ * @example
+ * ```ts
+ * import { Empty, IsEmpty } from '@vyke/results'
+ *
+ * const result = Empty()
+ *
+ * if (IsEmpty(result)) {
+ * 	console.log('The result is empty')
+ * }
+ *
+ * result.value // not available
+ * ```
+ */
+export let Empty = (): EmptyResult => {
+	return {
+		status: 'empty',
+	}
+}
+
+/**
+ * Creates a new _pending_ result
+ * @alias r.pending
+ * @example
+ * ```ts
+ * import { IsPending, Pending } from '@vyke/results'
+ *
+ * const result = Pending()
+ *
+ * if (Pending(result)) {
+ * 	console.log('The result is pending')
+ * }
+ *
+ * result.value // not available
+ * ```
+ */
+export let Pending = (): PendingResult => {
+	return {
+		status: 'pending',
+	}
+}
+
+export class ResultError<TError = unknown> extends Error implements ErrResult<TError> {
+	status: 'error' = 'error' as const
 	value: TError
 	constructor(message: string, value: TError) {
 		super(message)
@@ -83,16 +168,20 @@ export class ResultError<TError = unknown> extends Error implements Err<TError> 
  * ```
  */
 export let unwrap = <TValue, TError>(result: Result<TValue, TError>): TValue => {
-	if (result.ok) {
+	if (IsOk(result)) {
 		return result.value
 	}
 
-	const { value } = result
-	throw new ResultError(
-		value instanceof Error
-			? value.message
-			: `${value}`, value,
-	)
+	if (IsErr(result)) {
+		const { value } = result
+		throw new ResultError(
+			value instanceof Error
+				? value.message
+				: `${value}`, value,
+		)
+	}
+
+	throw new ResultError('Cannot unwrap a pending or empty result', result)
 }
 
 /**
@@ -111,7 +200,7 @@ export let unwrapOr = <TValue, TError>(
 	result: Result<TValue, TError>,
 	defaultValue: TValue,
 ): TValue => {
-	if (result.ok) {
+	if (IsOk(result)) {
 		return result.value
 	}
 
@@ -132,7 +221,7 @@ export let unwrapOr = <TValue, TError>(
  * ```
  */
 export let expect = <TValue, TError, TMessage>(result: Result<TValue, TError>, message: TMessage): TValue => {
-	if (result.ok) {
+	if (IsOk(result)) {
 		return result.value
 	}
 

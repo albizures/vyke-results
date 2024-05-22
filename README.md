@@ -3,7 +3,7 @@
 		@vyke/results
 	</h1>
 </div>
-Functional and tiny (<1kb) implementation of Rust _*Result*_ type in TypeScript inspired by ts-results. It simplifies error handling and enhances the management of asynchronous functions, offering a clean and efficient approach.
+Functional and small implementation of Rust _*Result*_ type with some goodies to work with TypeScript inspired by ts-results with its own take. It simplifies error handling and enhances the management of asynchronous functions, offering a clean and efficient approach.
 
 ## Installation
 ```sh
@@ -25,7 +25,7 @@ function readFile(filename: string) {
 }
 
 const result = readFile('test.txt')
-if (result.ok) {
+if (r.isOk(result)) {
 	console.log(result.value) // the files content
 }
 else {
@@ -41,7 +41,7 @@ import { r } from '@vyke/results/r'
 async function readFile(filename: string) {
 	const result = await r.to(fs.readFile(filename))
 
-	if (!result.ok) {
+	if (r.isErr(result)) {
 		return r.err(new Error('error reading file'))
 	}
 
@@ -49,15 +49,40 @@ async function readFile(filename: string) {
 }
 
 const result = await readFile('test.txt')
-if (result.ok) {
+if (r.isOk(result)) {
 	console.log(result.value) // the files content
 }
-else {
+else if (r.isErr(result)) {
 	console.error(result.value) // value is the error here
 }
 ```
 
 ## API
+### IsResult
+Checks if the given value is a result
+> [!TIP]
+> alias of `r.isResult`
+
+### IsOk
+Checks if the result is an _ok_ result
+> [!TIP]
+> alias of `r.isOk`
+
+### IsErr
+Checks if the result is an _err_ result
+> [!TIP]
+> alias of `r.isErr`
+
+### IsEmpty
+Checks if the result is a _empty_ result
+> [!TIP]
+> alias of `r.isEmpty`
+
+### IsPending
+Checks if the result is a _pending_ result
+> [!TIP]
+> alias of `r.isPending`
+
 ### Ok
 Creates a new _ok_ result with the given value
 > [!TIP]
@@ -81,6 +106,38 @@ const result = Err(new Error('some error'))
 ```
 > [!NOTE]
 > Error values don't need to be an error, they can be anything
+
+### Empty
+Creates a new _empty_ result
+> [!TIP]
+> alias of `r.empty`
+```ts
+import { Empty, IsEmpty } from '@vyke/results'
+
+const result = Empty()
+
+if (IsEmpty(result)) {
+	console.log('The result is empty')
+}
+
+result.value // not available
+```
+
+### Pending
+Creates a new _pending_ result
+> [!TIP]
+> alias of `r.pending`
+```ts
+import { IsPending, Pending } from '@vyke/results'
+
+const result = Pending()
+
+if (Pending(result)) {
+	console.log('The result is pending')
+}
+
+result.value // not available
+```
 
 ### unwrap
 Unwraps the result value or throws the error
@@ -211,7 +268,7 @@ await toUnwrap(Err(new Error('some error'))) // throws the error
 ```
 
 ### toUnwrapOr
-Awaits for the promise and unwraps it then returns the value or the default one
+Awaits for the promise, unwraps it, and then returns the value or the default one
 > [!TIP]
 > alias of `r.toUnwrapOr`
 ```ts

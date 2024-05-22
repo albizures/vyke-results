@@ -1,4 +1,4 @@
-import { Err, Ok, type Result, ResultError, config, expect, unwrap, unwrapOr } from './result'
+import { Err, type ErrResult, IsErr, IsOk, Ok, type Result, ResultError, config, expect, unwrap, unwrapOr } from './result'
 
 export type Mapper<TValue, TResult extends Result<any, any>> = (value: TValue) => TResult
 
@@ -43,8 +43,8 @@ export let to = async <TValue, TError = unknown>(promise: Promise<TValue>): Prom
 export let andThen = <TValue, TError, TNewValue = TValue, TNewError = TError>(
 	result: Result<TValue, TError>,
 	fn: Mapper<TValue, Result<TNewValue, TNewError>>,
-): Err<TError> | Result<TNewValue, TNewError> => {
-	if (result.ok) {
+): ErrResult<TError> | Result<TNewValue, TNewError> => {
+	if (IsOk(result)) {
 		return fn(result.value)
 	}
 
@@ -68,10 +68,10 @@ export let next = <TValue, TNextValue, TNextError>(
 	message?: string,
 ) => {
 	return async <TError>(result: Result<TValue, TError>): Promise<Result<TNextValue, TError | TNextError | Error>> => {
-		if (result.ok) {
+		if (IsOk(result)) {
 			const nextResult = await nextFn(result.value)
 
-			if (!nextResult.ok) {
+			if (IsErr(nextResult)) {
 				if (message) {
 					if (config.verbose) {
 						console.error(nextResult.value)
@@ -121,7 +121,7 @@ export let toExpect = async<TValue, TMessage>(promise: Promise<TValue>, message:
  * }) // will return the error thrown by unwrap
  * ```
  */
-export let toCapture = async <TValue, TError = unknown>(promise: Promise<Result<TValue, TError>>): Promise<Result<TValue, TError | Error>> => {
+export let toCapture = async <TValue, TError = unknown>(promise: Promise<Result<TValue, TError>>): Promise<Result<TValue, TError>> => {
 	try {
 		const result = await promise
 
@@ -132,7 +132,7 @@ export let toCapture = async <TValue, TError = unknown>(promise: Promise<Result<
 			return error
 		}
 
-		return Err(error) as Result<TValue, TError | Error>
+		return Err(error) as Result<TValue, TError>
 	}
 }
 
@@ -155,7 +155,7 @@ export let toUnwrap = async <TValue, TError>(promise: Promise<Result<TValue, TEr
 }
 
 /**
- * Awaits for the promise and unwraps it then returns the value or the default one
+ * Awaits for the promise, unwraps it, and then returns the value or the default one
  * @alias r.toUnwrapOr
  * @example
  * ```ts

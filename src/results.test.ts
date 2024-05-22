@@ -5,11 +5,11 @@ import { type Result, ResultError } from '.'
 r.config.verbose = false
 
 it('should return an ok result', () => {
-	expect(r.ok('123')).toEqual({ value: '123', ok: true })
+	expect(r.ok('123')).toEqual({ value: '123', status: 'success' })
 })
 
 it('should return an err result ', () => {
-	expect(r.err('345')).toEqual({ value: '345', ok: false })
+	expect(r.err('345')).toEqual({ value: '345', status: 'error' })
 })
 
 describe('unwrap', () => {
@@ -73,7 +73,7 @@ describe('andThen', () => {
 
 		expect(toInt).toHaveBeenCalledOnce()
 		expect(toInt).toHaveBeenCalledWith('123')
-		expect(nextOkResult.value).toBe(123)
+		expect(r.isOk(nextOkResult) && nextOkResult.value).toBe(123)
 
 		const errResult = r.err(new Error('invalid'))
 
@@ -82,7 +82,7 @@ describe('andThen', () => {
 		const nextErrorResult = r.andThen(errResult, toInt)
 
 		expect(toInt).not.toHaveBeenCalledOnce()
-		expect(nextErrorResult.value).toMatchObject({ message: 'invalid' })
+		expect(r.isErr(nextErrorResult) && nextErrorResult.value).toMatchObject({ message: 'invalid' })
 	})
 })
 
@@ -90,7 +90,7 @@ describe('to', () => {
 	it('should convert to a result', async () => {
 		const result = await r.to(Promise.resolve(1))
 
-		expect(result.value).toBe(1)
+		expect(r.isOk(result) && result.value).toBe(1)
 	})
 })
 
@@ -108,7 +108,7 @@ describe('next', () => {
 			.then(r.next(addOne))
 			.then(r.next(toString))
 
-		expect(result.value).toBe('2')
+		expect(r.isOk(result) && result.value).toBe('2')
 	})
 
 	it('should not run any next function if it is an error', async () => {
@@ -124,7 +124,7 @@ describe('next', () => {
 			.then(r.next(addOne))
 			.then(r.next(toString))
 
-		expect(result.value).toMatchObject({
+		expect(r.isErr(result) && result.value).toMatchObject({
 			message: 'some error',
 		})
 		expect(addOne).not.toHaveBeenCalled()
@@ -150,7 +150,7 @@ describe('next', () => {
 				.then(r.next(addOne, 'custom error'))
 				.then(r.next(toString))
 
-			expect(result.value).toMatchObject({
+			expect(r.isErr(result) && result.value).toMatchObject({
 				message: 'custom error',
 			})
 			expect(addOne).toHaveBeenCalled()

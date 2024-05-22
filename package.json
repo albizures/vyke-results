@@ -2,8 +2,7 @@
 	"name": "@vyke/results",
 	"type": "module",
 	"version": "0.2.3",
-	"packageManager": "pnpm@8.11.0",
-	"description": "Functional and tiny (<1kb) implementation of Rust Result type in TypeScript inspired by ts-results",
+	"description": "Functional and small implementation of Rust _*Result*_ type with some goodies to work with TypeScript inspired by ts-results with its own take.",
 	"author": "Jose Albizures <jose@albizures.com> (https://albizures.com/)",
 	"license": "MIT",
 	"keywords": [
@@ -43,15 +42,15 @@
 		"release": "run-s test build release:bump release:publish release:push-tags"
 	},
 	"devDependencies": {
-		"@antfu/eslint-config": "^2.6.4",
-		"@vyke/tsdocs": "^0.0.6",
-		"eslint": "^8.56.0",
-		"knip": "^5.0.1",
+		"@antfu/eslint-config": "^2.18.1",
+		"@vyke/tsdocs": "^0.0.8",
+		"eslint": "^9.3.0",
+		"knip": "^5.16.0",
 		"npm-run-all": "^4.1.5",
 		"standard-version": "^9.5.0",
-		"typescript": "^5.3.3",
+		"typescript": "^5.4.5",
 		"unbuild": "^2.0.0",
-		"vitest": "^1.2.2"
+		"vitest": "^1.6.0"
 	},
 	"standard-version": {
 		"skip": {

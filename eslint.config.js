@@ -9,6 +9,20 @@ export default antfu(
 		ignores: ['**/.tshy/**/*'],
 	},
 	{
+		files: ['*.ts', '*.tsx'],
+		rules: {
+			// for some reason this rules is not working
+			// when listed as general rule.
+			'ts/consistent-type-imports': [
+				'error',
+				{
+					prefer: 'type-imports',
+					fixStyle: 'inline-type-imports',
+				},
+			],
+		},
+	},
+	{
 		rules: {
 			'prefer-const': 'off',
 			'antfu/top-level-function': 'off',
@@ -17,13 +31,6 @@ export default antfu(
 			'ts/consistent-type-definitions': ['error', 'type'],
 			'ts/indent': 'off',
 			'ts/no-redeclare': 'off',
-			'ts/consistent-type-imports': [
-				'error',
-				{
-					prefer: 'type-imports',
-					fixStyle: 'inline-type-imports',
-				},
-			],
 			'arrow-parens': ['error', 'always'],
 			'style/arrow-parens': ['error', 'always'],
 			'curly': ['error', 'all'],
