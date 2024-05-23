@@ -305,3 +305,26 @@ export let capture = <TValue, TError = unknown>(fn: Fn<TValue>): Result<TValue, 
 		return Err(error)
 	}
 }
+
+/**
+ * Converts a pending result, or empty result to an error result with the specified error value.
+ * @alias r.intoErr
+ * @returns An error result with the specified error value.
+ * @example
+ * ```ts
+ * import { Empty, Pending, Err, intoErr } from '@vyke/results'
+ * intoErr(Err('my error'), 'another error') // ErrResult<'my error'>
+ * intoErr(Pending(), 'error cus empty') // ErrResult<'error cus empty'>
+ * intoErr(Empty, 'another cus pending') // ErrResult<'another cus pending'>
+ * ```
+ * > [!NOTE]
+ * > This function does nothing if the result is already an error result.
+ * > And it's not meant to convert a successful result to an error result.
+ */
+export let intoErr = <TError>(result: ErrResult<TError> | PendingResult | EmptyResult, error: TError): Result<never, TError> => {
+	if (IsErr(result)) {
+		return result
+	}
+
+	return Err(error)
+}

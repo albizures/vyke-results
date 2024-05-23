@@ -20,4 +20,6 @@ export let r = {
 	isEmpty: all.IsEmpty,
 	isResult: all.IsResult,
 	isPending: all.IsPending,
+
+	intoErr: all.intoErr,
 }
