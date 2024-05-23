@@ -1,3 +1,8 @@
+/**
+ * This module contains different variants of the result type and functions to work with results
+ * @module
+ */
+
 export type ResultStatus = Result<unknown, unknown>['status']
 
 export type OkResult<TValue> = {
@@ -228,7 +233,7 @@ export let expect = <TValue, TError, TMessage>(result: Result<TValue, TError>, m
 	throw typeof message === 'string' ? new Error(message) : message
 }
 
-type Fn<TValue, TError = unknown> = () => Result<TValue, TError>
+type Fn<TValue> = () => TValue
 
 /**
  * Runs the given function and always returns a result,
@@ -246,9 +251,9 @@ type Fn<TValue, TError = unknown> = () => Result<TValue, TError>
  * })
  * ```
  */
-export let capture = <TValue, TError = unknown>(fn: Fn<TValue, TError>): Result<TValue, TError | unknown> => {
+export let capture = <TValue, TError = unknown>(fn: Fn<TValue>): Result<TValue, TError | unknown> => {
 	try {
-		return fn()
+		return Ok(fn())
 	}
 	catch (error) {
 		if (error instanceof ResultError) {
