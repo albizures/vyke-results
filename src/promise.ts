@@ -1,15 +1,19 @@
 /**
  * This module contains functions to work with promises and results
- * @module
+ * @module promise
  */
 
 import { Err, type ErrResult, IsErr, IsOk, Ok, type Result, ResultError, config, expect, unwrap, unwrapOr } from './result'
 
+/**
+ * A function that maps a value to a result
+ */
 export type Mapper<TValue, TResult extends Result<any, any>> = (value: TValue) => TResult
 
 /**
  * Converts a promise to a result
  * @alias r.to
+ * @returns A promise that resolves to a Result
  * @example
  * ```ts
  * import { to } from '@vyke/results'
@@ -35,8 +39,11 @@ export let to = async <TValue, TError = unknown>(promise: Promise<TValue>): Prom
 }
 
 /**
- * Converts a promise to a result
+ * Converts a promise to a result and applies a mapping function
  * @alias r.andThen
+ * @param result - The result to apply the mapping function to
+ * @param fn - The mapping function
+ * @returns The result of applying the mapping function to the input result
  * @example
  * ```ts
  * import { Ok, andThen } from '@vyke/results'
@@ -59,8 +66,11 @@ export let andThen = <TValue, TError, TNewValue = TValue, TNewError = TError>(
 type NextHandle<TValue, TNextValue, TNextError> = <TError>(result: Result<TValue, TError>) => Promise<Result<TNextValue, TError | TNextError | Error>>
 
 /**
- * Similar to andThen, but to create a function to be used as a _then_ callback
+ * Creates a function to be used as a _then_ callback in a promise chain
  * @alias r.next
+ * @param nextFn - The function to be executed in the next step of the promise chain
+ * @param message - An optional error message to be thrown if the next step returns an error
+ * @returns A function that can be used as a _then_ callback
  * @example
  * ```ts
  * import { next, to } from '@vyke/results'
@@ -96,8 +106,11 @@ export let next = <TValue, TNextValue, TNextError>(
 }
 
 /**
- * Similar to toUnwrap but with a custom error
+ * Converts a promise to a result and throws an error with a custom message if the result is an error
  * @alias r.toExpect
+ * @param promise - The promise to convert
+ * @param message - The error message to throw if the result is an error
+ * @returns A promise that resolves to the value of the promise
  * @example
  * ```ts
  * import { Err, Ok, toExpect } from '@vyke/results'
@@ -114,8 +127,10 @@ export let toExpect = async<TValue, TMessage>(promise: Promise<TValue>, message:
 }
 
 /**
- * Similar to capture but for promises
+ * Converts a promise to a result and captures any errors thrown during the process
  * @alias r.toCapture
+ * @param promise - The promise to convert
+ * @returns A promise that resolves to a Result
  * @example
  * ```ts
  * import { Ok, toCapture, unwrap } from '@vyke/results'
@@ -147,6 +162,8 @@ export let toCapture = async <TValue, TError = unknown>(promise: Promise<Result<
 /**
  * Awaits for the promise and unwraps it then returns the value or throws the error
  * @alias r.toUnwrap
+ * @param promise - The promise to unwrap
+ * @returns A promise that resolves to the value of the promise
  * @example
  * ```ts
  * import { Ok, toUnwrap } from '@vyke/results'
@@ -165,6 +182,9 @@ export let toUnwrap = async <TValue, TError>(promise: Promise<Result<TValue, TEr
 /**
  * Awaits for the promise, unwraps it, and then returns the value or the default one
  * @alias r.toUnwrapOr
+ * @param promise - The promise to unwrap
+ * @param defaultValue - The default value to return if the promise is an error
+ * @returns A promise that resolves to the value of the promise or the default value
  * @example
  * ```ts
  * import { Ok, toUnwrapOr } from '@vyke/results'

@@ -3,75 +3,104 @@
  * @module
  */
 
+/**
+ * Represents the status of a result.
+ */
 export type ResultStatus = Result<unknown, unknown>['status']
 
+/**
+ * Represents a successful result with a value.
+ */
 export type OkResult<TValue> = {
 	status: 'success'
 	value: TValue
 }
 
+/**
+ * Represents an error result with an error value.
+ */
 export type ErrResult<TError> = {
 	status: 'error'
 	value: TError
 }
 
+/**
+ * Represents a pending result.
+ */
 export type PendingResult = {
 	status: 'pending'
 }
 
+/**
+ * Represents an empty result.
+ */
 export type EmptyResult = {
 	status: 'empty'
 }
 
+/**
+ * Represents a result that can be either a successful result, an error result, a pending result, or an empty result.
+ */
 export type Result<TValue, TError> = OkResult<TValue> | ErrResult<TError> | PendingResult | EmptyResult
 
 /**
- * Checks if the given value is a result
+ * Checks if the given value is a result.
  * @alias r.isResult
+ * @returns `true` if the value is a result, `false` otherwise.
  */
 export let IsResult = (result: unknown): result is Result<unknown, unknown> => {
 	return Boolean(result && typeof result === 'object' && 'status' in result && 'value' in result)
 }
 
 /**
- * Checks if the result is an _ok_ result
+ * Checks if the result is a successful result.
  * @alias r.isOk
+ * @param result - The result to check.
+ * @returns `true` if the result is a successful result, `false` otherwise.
  */
 export let IsOk = <TValue, TError>(result: Result<TValue, TError>): result is OkResult<TValue> => {
 	return result.status === 'success'
 }
 
 /**
- * Checks if the result is an _err_ result
+ * Checks if the result is an error result.
  * @alias r.isErr
+ * @param result - The result to check.
+ * @returns `true` if the result is an error result, `false` otherwise.
  */
 export let IsErr = <TValue, TError>(result: Result<TValue, TError>): result is ErrResult<TError> => {
 	return result.status === 'error'
 }
 
 /**
- * Checks if the result is a _empty_ result
+ * Checks if the result is an empty result.
  * @alias r.isEmpty
+ * @returns `true` if the result is an empty result, `false` otherwise.
  */
 export let IsEmpty = <TValue, TError>(result: Result<TValue, TError>): result is EmptyResult => {
 	return result.status === 'empty'
 }
 
 /**
- * Checks if the result is a _pending_ result
+ * Checks if the result is a pending result.
  * @alias r.isPending
+ * @returns `true` if the result is a pending result, `false` otherwise.
  */
 export let IsPending = <TValue, TError>(result: Result<TValue, TError>): result is PendingResult => {
 	return result.status === 'pending'
 }
 
+/**
+ * Configuration options for the result module.
+ */
 export let config = {
 	verbose: false,
 }
 
 /**
- * Creates a new _ok_ result with the given value
+ * Creates a new successful result with the given value.
  * @alias r.ok
+ * @returns A new successful result.
  * @example
  * ```ts
  * import { Ok } from '@vyke/results'
@@ -88,8 +117,9 @@ export let Ok = <TValue>(value: TValue): Result<TValue, never> => {
 }
 
 /**
- * Creates a new _err_ result with the given error
+ * Creates a new error result with the given error.
  * @alias r.err
+ * @returns A new error result.
  * @example
  * ```ts
  * import { Err } from '@vyke/results'
@@ -98,7 +128,7 @@ export let Ok = <TValue>(value: TValue): Result<TValue, never> => {
  * //      ^? Result<never, Error>
  * ```
  * > [!NOTE]
- * > Error values don't need to be an error, they can be anything
+ * > Error values don't need to be an error, they can be anything.
  */
 export let Err = <TError>(error: TError): Result<never, TError> => {
 	return {
@@ -108,8 +138,9 @@ export let Err = <TError>(error: TError): Result<never, TError> => {
 }
 
 /**
- * Creates a new _empty_ result
+ * Creates a new empty result.
  * @alias r.empty
+ * @returns A new empty result.
  * @example
  * ```ts
  * import { Empty, IsEmpty } from '@vyke/results'
@@ -130,8 +161,9 @@ export let Empty = (): EmptyResult => {
 }
 
 /**
- * Creates a new _pending_ result
+ * Creates a new pending result.
  * @alias r.pending
+ * @returns A new pending result.
  * @example
  * ```ts
  * import { IsPending, Pending } from '@vyke/results'
@@ -151,6 +183,9 @@ export let Pending = (): PendingResult => {
 	}
 }
 
+/**
+ * Represents an error result with an error value.
+ */
 export class ResultError<TError = unknown> extends Error implements ErrResult<TError> {
 	status: 'error' = 'error' as const
 	value: TError
@@ -161,8 +196,9 @@ export class ResultError<TError = unknown> extends Error implements ErrResult<TE
 }
 
 /**
- * Unwraps the result value or throws the error
+ * Unwraps the value of a result or throws an error.
  * @alias r.unwrap
+ * @throws If the result is an error result or a pending or empty result.
  * @example
  * ```ts
  * import { Ok, unwrap } from '@vyke/results'
@@ -190,8 +226,11 @@ export let unwrap = <TValue, TError>(result: Result<TValue, TError>): TValue => 
 }
 
 /**
- * Unwraps the result value or returns the default value
+ * Unwraps the value of a result or returns a default value.
  * @alias r.unwrapOr
+ * @param result - The result to unwrap.
+ * @param defaultValue - The default value to return if the result is not a successful result.
+ * @returns The value of the result or the default value.
  * @example
  * ```ts
  * import { Ok, unwrapOr } from '@vyke/results'
@@ -213,8 +252,12 @@ export let unwrapOr = <TValue, TError>(
 }
 
 /**
- * Similar to unwraps but with a custom error
+ * Unwraps the value of a result or throws a custom error.
  * @alias r.expect
+ * @param result - The result to unwrap.
+ * @param message - The custom error message or error object to throw.
+ * @returns The value of the result.
+ * @throws If the result is an error result or a pending or empty result.
  * @example
  * ```ts
  * import { Err, Ok, expect } from '@vyke/results'
@@ -236,9 +279,9 @@ export let expect = <TValue, TError, TMessage>(result: Result<TValue, TError>, m
 type Fn<TValue> = () => TValue
 
 /**
- * Runs the given function and always returns a result,
- * in case of error it will _capture_ and convert to result if needed
+ * Runs a function and captures any errors, converting them to a result if needed.
  * @alias r.capture
+ * @returns A result representing the outcome of the function.
  * @example
  * ```ts
  * import { Err, Ok, capture, unwrap } from '@vyke/results'
