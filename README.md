@@ -184,7 +184,7 @@ in case of error it will _capture_ and convert to result if needed
 ```ts
 import { Err, Ok, capture, unwrap } from '@vyke/results'
 
-const result1 = capture(() => Ok(123)) // only returns the result
+const result1 = capture(() => 123) // only returns value in a return
 //     ^? Result<number, unknown>
 
 const result2 = capture(() => {
