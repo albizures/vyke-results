@@ -1,3 +1,8 @@
+/**
+ * This module contains functions to work with promises and results
+ * @module
+ */
+
 import { Err, type ErrResult, IsErr, IsOk, Ok, type Result, ResultError, config, expect, unwrap, unwrapOr } from './result'
 
 export type Mapper<TValue, TResult extends Result<any, any>> = (value: TValue) => TResult
@@ -122,6 +127,7 @@ export let toExpect = async<TValue, TMessage>(promise: Promise<TValue>, message:
  * 	unwrap(Err(new Error('some error')))
  * }) // will return the error thrown by unwrap
  * ```
+ * @deprecated will be removed in the next major version
  */
 export let toCapture = async <TValue, TError = unknown>(promise: Promise<Result<TValue, TError>>): Promise<Result<TValue, TError>> => {
 	try {

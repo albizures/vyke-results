@@ -1,5 +1,13 @@
+/**
+ * This module defines a the `r` shorthand for all functions in the `result` module
+ * @module
+ */
+
 import * as all from './'
 
+/**
+ * Shorthand for all functions in the `result` module for easy access
+ */
 export let r = {
 	...all,
 	ok: all.Ok,
