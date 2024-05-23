@@ -312,7 +312,7 @@ export let capture = <TValue, TError = unknown>(fn: Fn<TValue>): Result<TValue, 
  * @returns An error result with the specified error value.
  * @example
  * ```ts
- * import { Empty, Pending, Err, intoErr } from '@vyke/results'
+ * import { Empty, Err, Pending, intoErr } from '@vyke/results'
  * intoErr(Err('my error'), 'another error') // ErrResult<'my error'>
  * intoErr(Pending(), 'error cus empty') // ErrResult<'error cus empty'>
  * intoErr(Empty, 'another cus pending') // ErrResult<'another cus pending'>

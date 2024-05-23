@@ -59,32 +59,35 @@ else if (r.isErr(result)) {
 
 ## API
 ### IsResult
-Checks if the given value is a result
+Checks if the given value is a result.
 > [!TIP]
 > alias of `r.isResult`
 
 ### IsOk
-Checks if the result is an _ok_ result
+Checks if the result is a successful result.
 > [!TIP]
 > alias of `r.isOk`
 
 ### IsErr
-Checks if the result is an _err_ result
+Checks if the result is an error result.
 > [!TIP]
 > alias of `r.isErr`
 
 ### IsEmpty
-Checks if the result is a _empty_ result
+Checks if the result is an empty result.
 > [!TIP]
 > alias of `r.isEmpty`
 
 ### IsPending
-Checks if the result is a _pending_ result
+Checks if the result is a pending result.
 > [!TIP]
 > alias of `r.isPending`
 
+### config
+Configuration options for the result module.
+
 ### Ok
-Creates a new _ok_ result with the given value
+Creates a new successful result with the given value.
 > [!TIP]
 > alias of `r.ok`
 ```ts
@@ -95,7 +98,7 @@ const result = Ok(123)
 ```
 
 ### Err
-Creates a new _err_ result with the given error
+Creates a new error result with the given error.
 > [!TIP]
 > alias of `r.err`
 ```ts
@@ -105,10 +108,10 @@ const result = Err(new Error('some error'))
 //      ^? Result<never, Error>
 ```
 > [!NOTE]
-> Error values don't need to be an error, they can be anything
+> Error values don't need to be an error, they can be anything.
 
 ### Empty
-Creates a new _empty_ result
+Creates a new empty result.
 > [!TIP]
 > alias of `r.empty`
 ```ts
@@ -124,7 +127,7 @@ result.value // not available
 ```
 
 ### Pending
-Creates a new _pending_ result
+Creates a new pending result.
 > [!TIP]
 > alias of `r.pending`
 ```ts
@@ -139,8 +142,11 @@ if (Pending(result)) {
 result.value // not available
 ```
 
+### ResultError
+Represents an error result with an error value.
+
 ### unwrap
-Unwraps the result value or throws the error
+Unwraps the value of a result or throws an error.
 > [!TIP]
 > alias of `r.unwrap`
 ```ts
@@ -152,7 +158,7 @@ unwrap(Err(new Error('some error'))) // throws the error
 ```
 
 ### unwrapOr
-Unwraps the result value or returns the default value
+Unwraps the value of a result or returns a default value.
 > [!TIP]
 > alias of `r.unwrapOr`
 ```ts
@@ -164,7 +170,7 @@ unwrapOr(Err(new Error('some error')), 10) // returns 10 instead of the error
 ```
 
 ### expect
-Similar to unwraps but with a custom error
+Unwraps the value of a result or throws a custom error.
 > [!TIP]
 > alias of `r.expect`
 ```ts
@@ -177,8 +183,7 @@ expect(Err(new Error('some error')), 'another error') // throws the error with t
 ```
 
 ### capture
-Runs the given function and always returns a result,
-in case of error it will _capture_ and convert to result if needed
+Runs a function and captures any errors, converting them to a result if needed.
 > [!TIP]
 > alias of `r.capture`
 ```ts
@@ -191,6 +196,20 @@ const result2 = capture(() => {
 	unwrap(Err(new Error('some error')))
 })
 ```
+
+### intoErr
+Converts a pending result, or empty result to an error result with the specified error value.
+> [!TIP]
+> alias of `r.intoErr`
+```ts
+import { Empty, Err, Pending, intoErr } from '@vyke/results'
+intoErr(Err('my error'), 'another error') // ErrResult<'my error'>
+intoErr(Pending(), 'error cus empty') // ErrResult<'error cus empty'>
+intoErr(Empty, 'another cus pending') // ErrResult<'another cus pending'>
+```
+> [!NOTE]
+> This function does nothing if the result is already an error result.
+> And it's not meant to convert a successful result to an error result.
 
 ### to
 Converts a promise to a result
@@ -206,7 +225,7 @@ const result = await to(Promise.resolve(123))
 > Notice that Result error type is unknown
 
 ### andThen
-Converts a promise to a result
+Converts a promise to a result and applies a mapping function
 > [!TIP]
 > alias of `r.andThen`
 ```ts
@@ -217,7 +236,7 @@ const result = andThen(Ok(123), (value) => Ok(String(value)))
 ```
 
 ### next
-Similar to andThen, but to create a function to be used as a _then_ callback
+Creates a function to be used as a _then_ callback in a promise chain
 > [!TIP]
 > alias of `r.next`
 ```ts
@@ -229,7 +248,7 @@ const result = await Promise.resolve(Ok(123))
 ```
 
 ### toExpect
-Similar to toUnwrap but with a custom error
+Converts a promise to a result and throws an error with a custom message if the result is an error
 > [!TIP]
 > alias of `r.toExpect`
 ```ts
@@ -241,7 +260,7 @@ await toExpect(Err(new Error('some error')), 'another error') // throws the erro
 ```
 
 ### toCapture
-Similar to capture but for promises
+Converts a promise to a result and captures any errors thrown during the process
 > [!TIP]
 > alias of `r.toCapture`
 ```ts
