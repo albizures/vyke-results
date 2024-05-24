@@ -211,6 +211,32 @@ intoErr(Empty, 'another cus pending') // ErrResult<'another cus pending'>
 > This function does nothing if the result is already an error result.
 > And it's not meant to convert a successful result to an error result.
 
+### mapInto
+Maps the value of a result to a new result using the provided mapping function.
+> [!TIP]
+> alias of `r.mapInto`
+```ts
+import { Err, Ok, mapInto } from '@vyke/results'
+mapInto(Ok(1), (value) => Ok(value + 1)) // Ok(2)
+mapInto(Err(new Error('some error')), (value) => Ok(value + 1)) // Err(new Error('some error'))
+```
+
+### MapHelper
+A helper class for chaining map operations on a result.
+
+### map
+A helper class for chaining map operations on a result.
+> [!TIP]
+> alias of `r.map`
+```ts
+import { Err, Ok, map } from '@vyke/results'
+
+map(Ok(1))
+	.into((value) => Ok(value + 1))
+	.into((value) => Ok(value + 1))
+	.done()
+```
+
 ### to
 Converts a promise to a result
 > [!TIP]

@@ -331,6 +331,13 @@ export let intoErr = <TError>(result: ErrResult<TError> | PendingResult | EmptyR
 
 /**
  * Maps the value of a result to a new result using the provided mapping function.
+ * @alias r.mapInto
+ * @example
+ * ```ts
+ * import { Err, Ok, mapInto } from '@vyke/results'
+ * mapInto(Ok(1), (value) => Ok(value + 1)) // Ok(2)
+ * mapInto(Err(new Error('some error')), (value) => Ok(value + 1)) // Err(new Error('some error'))
+ * ```
  */
 export let mapInto = <TValue, TError, TNewValue, TNewError>(
 	result: Result<TValue, TError>,
@@ -386,9 +393,10 @@ export type Mapper<TValue, TResult extends Result<any, any>> = (value: TValue) =
 
 /**
  * A helper class for chaining map operations on a result.
+ * @alias r.map
  * @example
  * ```ts
- * import { Ok, map, Err } from '@vyke/results'
+ * import { Err, Ok, map } from '@vyke/results'
  *
  * map(Ok(1))
  * 	.into((value) => Ok(value + 1))
