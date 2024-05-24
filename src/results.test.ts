@@ -220,24 +220,25 @@ describe('toExpect', () => {
 })
 
 describe('capture', () => {
+	it('should convert the into a result', () => {
+		function fn() {
+			return '123'
+		}
+
+		const result = r.capture(fn)
+
+		expect(result).toEqual({ value: '123', status: 'success' })
+	})
 	it('should capture/catch the error', () => {
 		function fnWithError() {
-			const result1 = r.ok('123')
-
-			const value1 = r.unwrap(result1)
-
-			expect(value1).toBe('123')
-
-			const result2 = r.err(new Error('some error'))
-
-			const value2 = r.unwrap(result2)
-
-			return r.ok(value2)
+			throw new Error('some error')
 		}
 
 		const result = r.capture(fnWithError)
 
-		expect(result).instanceOf(ResultError)
+		expect(result).toEqual({ value: expect.objectContaining({
+			message: 'some error',
+		}), status: 'error' })
 	})
 })
 
@@ -260,5 +261,68 @@ describe('toCapture', () => {
 		const result = await r.toCapture(fnWithError())
 
 		expect(result).instanceOf(ResultError)
+	})
+})
+
+describe('mapInto', () => {
+	it('should map the value', () => {
+		const result = r.ok('123')
+
+		const mappedResult = r.mapInto(result, (value) => r.ok(Number(value)))
+
+		expect(r.isOk(mappedResult) && mappedResult.value).toBe(123)
+	})
+
+	it('should not map the error', () => {
+		const result = r.err(new Error('some error'))
+
+		const mappedResult = r.mapInto(result, (value) => r.ok(Number(value)))
+
+		expect(r.isErr(mappedResult) && mappedResult.value).toMatchObject({
+			message: 'some error',
+		})
+	})
+})
+
+describe('map', () => {
+	it('should map the value', () => {
+		const result = r.map(r.ok(1))
+			.into((value) => r.ok(value + 1))
+			.into((value) => r.ok(value + 1))
+			.get()
+
+		expect(r.isOk(result) && result.value).toBe(3)
+	})
+
+	describe('when one of the into functions doesn\'t return a successful result', () => {
+		it('should not map the error', () => {
+			const errorResult = r.map(r.err(new Error('some error')))
+				.into((value) => r.ok(Number(value)))
+				.into((value) => r.ok(value + 1))
+				.get()
+
+			expect(r.isErr(errorResult) && errorResult.value).toMatchObject({
+				message: 'some error',
+			})
+			const emptyResult = r.map(r.empty())
+				.into((value) => r.ok(Number(value)))
+				.into((value) => r.ok(value + 1))
+				.get()
+
+			expect(
+				emptyResult,
+			).toMatchObject({
+				status: 'empty',
+			})
+			const pendingResult = r.map(r.pending())
+				.into((value) => r.ok(Number(value)))
+				.get()
+
+			expect(
+				pendingResult,
+			).toMatchObject({
+				status: 'pending',
+			})
+		})
 	})
 })

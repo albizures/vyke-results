@@ -321,10 +321,81 @@ export let capture = <TValue, TError = unknown>(fn: Fn<TValue>): Result<TValue, 
  * > This function does nothing if the result is already an error result.
  * > And it's not meant to convert a successful result to an error result.
  */
-export let intoErr = <TError>(result: ErrResult<TError> | PendingResult | EmptyResult, error: TError): Result<never, TError> => {
+export let intoErr = <TError>(result: ErrResult<TError> | PendingResult | EmptyResult, error: TError): ErrResult<TError> => {
 	if (IsErr(result)) {
 		return result
 	}
 
-	return Err(error)
+	return Err(error) as ErrResult<TError>
+}
+
+/**
+ * Maps the value of a result to a new result using the provided mapping function.
+ */
+export let mapInto = <TValue, TError, TNewValue, TNewError>(
+	result: Result<TValue, TError>,
+	fn: Mapper<TValue, Result<TNewValue, TNewError>>,
+): Result<TNewValue, TError | TNewError> => {
+	if (IsOk(result)) {
+		return fn(result.value)
+	}
+
+	return result
+}
+
+/**
+ * A helper class for chaining map operations on a result.
+ */
+export class MapHelper<TValue, TError> {
+	private result: Result<TValue, TError>
+
+	constructor(result: Result<TValue, TError>) {
+		this.result = result
+	}
+
+	/**
+	 * Maps the value of the result to a new result using the provided mapping function.
+	 * @param fn - The mapping function.
+	 * @returns A new `MapHelper` instance with the mapped result.
+	 */
+	into<TNewValue, TNewError>(
+		fn: Mapper<TValue, Result<TNewValue, TNewError>>,
+	): MapHelper<TNewValue, TError | TNewError> {
+		const mappedResult = mapInto(this.result, fn)
+		return this.applyTo(mappedResult)
+	}
+
+	/**
+	 * Apply the mapped result to the current instance.
+	 */
+	private applyTo<TNewValue, TNewError>(result: Result<TNewValue, TNewError>): MapHelper<TNewValue, TError | TNewError> {
+		let mapHelper = this as unknown as MapHelper<TNewValue, TError | TNewError>
+		mapHelper.result = result
+		return mapHelper
+	}
+
+	get(): Result<TValue, TError> {
+		return this.result
+	}
+}
+
+/**
+ * A function that maps a value to a result
+ */
+export type Mapper<TValue, TResult extends Result<any, any>> = (value: TValue) => TResult
+
+/**
+ * A helper class for chaining map operations on a result.
+ * @example
+ * ```ts
+ * import { Ok, map, Err } from '@vyke/results'
+ *
+ * map(Ok(1))
+ * 	.into((value) => Ok(value + 1))
+ * 	.into((value) => Ok(value + 1))
+ * 	.done()
+ * ```
+ */
+export let map = <TValue, TError>(result: Result<TValue, TError>): MapHelper<TValue, TError> => {
+	return new MapHelper(result)
 }
