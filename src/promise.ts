@@ -3,12 +3,20 @@
  * @module promise
  */
 
-import { Err, type ErrResult, IsErr, IsOk, Ok, type Result, ResultError, config, expect, unwrap, unwrapOr } from './result'
-
-/**
- * A function that maps a value to a result
- */
-export type Mapper<TValue, TResult extends Result<any, any>> = (value: TValue) => TResult
+import {
+	Err,
+	type ErrResult,
+	IsErr,
+	IsOk,
+	type Mapper,
+	Ok,
+	type Result,
+	ResultError,
+	config,
+	expect,
+	unwrap,
+	unwrapOr,
+} from './result'
 
 /**
  * Converts a promise to a result
