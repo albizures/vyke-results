@@ -37,7 +37,7 @@ export type Result<TValue, TError> = OkImpl<TValue> | ErrImpl<TError>
  * @returns A new successful result.
  * @example
  * ```ts
- * import { Ok } from '@vyke/results'
+ * import { Ok } from '@vyke/results/result'
  *
  * const result = Ok(123)
  * //      ^? Result<number, never>
@@ -53,7 +53,7 @@ export function Ok<TValue>(value: TValue): Result<TValue, never> {
  * @returns A new error result.
  * @example
  * ```ts
- * import { Err } from '@vyke/results'
+ * import { Err } from '@vyke/results/result'
  *
  * const result = Err(new Error('some error'))
  * //      ^? Result<never, Error>
@@ -94,7 +94,7 @@ export function isErr<TValue, TError>(result: Result<TValue, TError>): result is
  * @throws If the result is an error result or.
  * @example
  * ```ts
- * import { Err, Ok, expect } from '@vyke/results'
+ * import { Err, Ok, expect } from '@vyke/results/result'
  *
  * const value = expect(Ok(123), 'some error')
  * //     ^? number
@@ -116,7 +116,7 @@ export function expectOk<TValue, TError>(result: Result<TValue, TError>, message
  * @throws If the result is an error result
  * @example
  * ```ts
- * import { Ok, unwrap } from '@vyke/results'
+ * import { Ok, unwrap } from '@vyke/results/result'
  *
  * const value = unwrap(Ok(123))
  * //      ^? number
@@ -139,7 +139,7 @@ export function unwrap<TValue, TError>(result: Result<TValue, TError>): TValue {
  * @returns The value of the result or the default value.
  * @example
  * ```ts
- * import { Ok, unwrapOr } from '@vyke/results'
+ * import { Ok, unwrapOr } from '@vyke/results/result'
  *
  * const value = unwrapOr(Ok(123), 10)
  * //      ^? number
@@ -159,7 +159,7 @@ export function unwrapOr<TValue, TError>(result: Result<TValue, TError>, default
  * @alias r.mapInto
  * @example
  * ```ts
- * import { Err, Ok, mapInto } from '@vyke/results'
+ * import { Err, Ok, mapInto } from '@vyke/results/result'
  * mapInto(Ok(1), (value) => Ok(value + 1)) // Ok(2)
  * mapInto(Err(new Error('some error')), (value) => Ok(value + 1)) // Err(new Error('some error'))
  * ```
@@ -219,7 +219,7 @@ export type Mapper<TValue, TResult extends Result<any, any>> = (value: TValue) =
  * @alias r.map
  * @example
  * ```ts
- * import { Err, Ok, map } from '@vyke/results'
+ * import { Err, Ok, map } from '@vyke/results/result'
  *
  * map(Ok(1))
  * 	.into((value) => Ok(value + 1))
@@ -239,7 +239,7 @@ type Fn<TValue> = () => TValue
  * @returns A result representing the outcome of the function.
  * @example
  * ```ts
- * import { Err, Ok, capture, unwrap } from '@vyke/results'
+ * import { Err, Ok, capture, unwrap } from '@vyke/results/result'
  *
  * const result1 = capture(() => 123) // only returns value in a return
  * //     ^? Result<number, unknown>
@@ -268,7 +268,7 @@ export function capture<TValue, TError = unknown>(fn: Fn<TValue>): Result<TValue
  * @returns The flattened result.
  * @example
  * ```ts
- * import { Ok, flatten } from '@vyke/results'
+ * import { Ok, flatten } from '@vyke/results/result'
  *
  * const result = flatten(Ok(Ok(123)))
  * //      ^? Result<number, unknown>
@@ -288,7 +288,7 @@ export function flatten<TValue>(result: Result<Result<TValue, any>, Result<TValu
  * @returns A promise that resolves to a Result
  * @example
  * ```ts
- * import { to } from '@vyke/results'
+ * import { to } from '@vyke/results/result'
  *
  * const result = await to(Promise.resolve(123))
  * //     ^? Result<number, unknown>
@@ -319,7 +319,7 @@ export async function to<TValue>(promise: Promise<TValue>): Promise<Result<TValu
  * @returns The result of applying the mapping function to the input result
  * @example
  * ```ts
- * import { Ok, andThen } from '@vyke/results'
+ * import { Ok, andThen } from '@vyke/results/result'
  *
  * const result = andThen(Ok(123), (value) => Ok(String(value)))
  * //      ^? Result<number, never>
@@ -344,7 +344,7 @@ type NextFn<TValue, TNextValue, TNextError> = (value: TValue) => Result<TNextVal
  * @returns A function that can be used as a _then_ callback
  * @example
  * ```ts
- * import { next, to } from '@vyke/results'
+ * import { next, to } from '@vyke/results/result'
  *
  * const result = await Promise.resolve(Ok(123))
  * //     ^? Result<string, never>
@@ -380,7 +380,7 @@ export function next<TValue, TNextValue, TNextError>(
  * @returns A promise that resolves to the value of the promise
  * @example
  * ```ts
- * import { Err, Ok, toExpectOk } from '@vyke/results'
+ * import { Err, Ok, toExpectOk } from '@vyke/results/result'
  *
  * const value = await toExpectOk(Ok(123), 'some error')
  * //     ^? number
@@ -407,7 +407,7 @@ export async function toExpectOk<TValue>(promise: Promise<Result<TValue, any>>, 
  * @returns A promise that resolves to the value of the promise
  * @example
  * ```ts
- * import { Ok, toUnwrap } from '@vyke/results'
+ * import { Ok, toUnwrap } from '@vyke/results/result'
  *
  * const value = await toUnwrap(Ok(123))
  * //      ^? number
@@ -437,7 +437,7 @@ export async function toUnwrap<TValue, TError>(promise: Promise<Result<TValue, T
  * @returns A promise that resolves to the value of the promise or the default value
  * @example
  * ```ts
- * import { Ok, toUnwrapOr } from '@vyke/results'
+ * import { Ok, toUnwrapOr } from '@vyke/results/result'
  *
  * const value = await toUnwrapOr(Ok(123), 345)
  * //      ^? number

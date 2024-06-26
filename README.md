@@ -63,7 +63,7 @@ Creates a new successful result with the given value.
 > [!TIP]
 > alias of `r.ok`
 ```ts
-import { Ok } from '@vyke/results'
+import { Ok } from '@vyke/results/result'
 
 const result = Ok(123)
 //      ^? Result<number, never>
@@ -74,7 +74,7 @@ Creates a new error result with the given error.
 > [!TIP]
 > alias of `r.err`
 ```ts
-import { Err } from '@vyke/results'
+import { Err } from '@vyke/results/result'
 
 const result = Err(new Error('some error'))
 //      ^? Result<never, Error>
@@ -97,7 +97,7 @@ Unwraps the value of a result or throws a custom error.
 > [!TIP]
 > alias of `r.expectOk`
 ```ts
-import { Err, Ok, expect } from '@vyke/results'
+import { Err, Ok, expect } from '@vyke/results/result'
 
 const value = expect(Ok(123), 'some error')
 //     ^? number
@@ -110,7 +110,7 @@ Unwraps the value of a result or throws an error.
 > [!TIP]
 > alias of `r.unwrap`
 ```ts
-import { Ok, unwrap } from '@vyke/results'
+import { Ok, unwrap } from '@vyke/results/result'
 
 const value = unwrap(Ok(123))
 //      ^? number
@@ -122,7 +122,7 @@ Unwraps the value of a result or returns a default value.
 > [!TIP]
 > alias of `r.unwrapOr`
 ```ts
-import { Ok, unwrapOr } from '@vyke/results'
+import { Ok, unwrapOr } from '@vyke/results/result'
 
 const value = unwrapOr(Ok(123), 10)
 //      ^? number
@@ -134,7 +134,7 @@ Maps the value of a result to a new result using the provided mapping function.
 > [!TIP]
 > alias of `r.mapInto`
 ```ts
-import { Err, Ok, mapInto } from '@vyke/results'
+import { Err, Ok, mapInto } from '@vyke/results/result'
 mapInto(Ok(1), (value) => Ok(value + 1)) // Ok(2)
 mapInto(Err(new Error('some error')), (value) => Ok(value + 1)) // Err(new Error('some error'))
 ```
@@ -147,7 +147,7 @@ A helper class for chaining map operations on a result.
 > [!TIP]
 > alias of `r.map`
 ```ts
-import { Err, Ok, map } from '@vyke/results'
+import { Err, Ok, map } from '@vyke/results/result'
 
 map(Ok(1))
 	.into((value) => Ok(value + 1))
@@ -160,7 +160,7 @@ Runs a function and captures any errors, converting them to a result.
 > [!TIP]
 > alias of `r.capture`
 ```ts
-import { Err, Ok, capture, unwrap } from '@vyke/results'
+import { Err, Ok, capture, unwrap } from '@vyke/results/result'
 
 const result1 = capture(() => 123) // only returns value in a return
 //     ^? Result<number, unknown>
@@ -175,7 +175,7 @@ Flattens a nested result.
 > [!TIP]
 > alias of `r.flatten`
 ```ts
-import { Ok, flatten } from '@vyke/results'
+import { Ok, flatten } from '@vyke/results/result'
 
 const result = flatten(Ok(Ok(123)))
 //      ^? Result<number, unknown>
@@ -186,7 +186,7 @@ Converts a promise to a result
 > [!TIP]
 > alias of `r.to`
 ```ts
-import { to } from '@vyke/results'
+import { to } from '@vyke/results/result'
 
 const result = await to(Promise.resolve(123))
 //     ^? Result<number, unknown>
@@ -199,7 +199,7 @@ Converts a promise to a result and applies a mapping function
 > [!TIP]
 > alias of `r.andThen`
 ```ts
-import { Ok, andThen } from '@vyke/results'
+import { Ok, andThen } from '@vyke/results/result'
 
 const result = andThen(Ok(123), (value) => Ok(String(value)))
 //      ^? Result<number, never>
@@ -210,7 +210,7 @@ Creates a function to be used as a _then_ callback in a promise chain
 > [!TIP]
 > alias of `r.next`
 ```ts
-import { next, to } from '@vyke/results'
+import { next, to } from '@vyke/results/result'
 
 const result = await Promise.resolve(Ok(123))
 //     ^? Result<string, never>
@@ -222,7 +222,7 @@ Converts a promise to a result and throws an error with a custom message if the 
 > [!TIP]
 > alias of `r.toExpect`
 ```ts
-import { Err, Ok, toExpectOk } from '@vyke/results'
+import { Err, Ok, toExpectOk } from '@vyke/results/result'
 
 const value = await toExpectOk(Ok(123), 'some error')
 //     ^? number
@@ -234,7 +234,7 @@ Awaits for the promise and unwraps it then returns the value or throws the error
 > [!TIP]
 > alias of `r.toUnwrap`
 ```ts
-import { Ok, toUnwrap } from '@vyke/results'
+import { Ok, toUnwrap } from '@vyke/results/result'
 
 const value = await toUnwrap(Ok(123))
 //      ^? number
@@ -246,7 +246,7 @@ Awaits for the promise, unwraps it, and then returns the value or the default on
 > [!TIP]
 > alias of `r.toUnwrapOr`
 ```ts
-import { Ok, toUnwrapOr } from '@vyke/results'
+import { Ok, toUnwrapOr } from '@vyke/results/result'
 
 const value = await toUnwrapOr(Ok(123), 345)
 //      ^? number
@@ -269,7 +269,7 @@ Checks if an option is a Some option.
 > [!TIP]
 > alias of `o.isSome`
 ```ts
-import { Some, None, isSome } from '@vyke/results/option'
+import { None, Some, isSome } from '@vyke/results/option'
 
 isSome(Some(123)) // true
 isSome(None()) // false
@@ -284,7 +284,7 @@ Checks if an option is a None option.
 > [!TIP]
 > alias of `o.isNone`
 ```ts
-import { Some, None, isNone } from '@vyke/results/option'
+import { None, Some, isNone } from '@vyke/results/option'
 
 isNone(Some(123)) // false
 isNone(None()) // true
@@ -295,7 +295,7 @@ Unwraps the value of an option or throws an error.
 > [!TIP]
 > alias of `o.unwrap`
 ```ts
-import { Some, None, unwrap } from '@vyke/results/option'
+import { None, Some, unwrap } from '@vyke/results/option'
 
 const value = unwrap(Some(123))
 //      ^? number 123
@@ -307,11 +307,11 @@ Unwraps the value of a result or returns a default value.
 > [!TIP]
 > alias of `o.unwrapOr`
 ```ts
-import { Some, None, unwrapOr } from '@vyke/results/option'
+import { None, Some, unwrapOr } from '@vyke/results/option'
 
 const value = unwrapOr(Some(123), 10)
 //      ^? number
-unwrapOr(None), 10) // returns 10 instead of throwing an error
+unwrapOr(None(), 10) // returns 10 instead of throwing an error
 ```
 
 ### o

@@ -10,13 +10,13 @@ class SomeImpl<TValue> extends OptionBase<TValue> {
 	}
 }
 
-class NoneImpl<TValue> extends OptionBase<TValue> {
+class NoneImpl extends OptionBase<never> {
 	constructor() {
 		super()
 	}
 }
 
-export type Option<TValue> = SomeImpl<TValue> | NoneImpl<TValue>
+export type Option<TValue> = SomeImpl<TValue> | NoneImpl
 
 /**
  * Creates a new Some option.
@@ -31,7 +31,7 @@ const none = new NoneImpl()
 /**
  * Creates a new None option.
  */
-export function None() {
+export function None(): Option<never> {
 	return none
 }
 
@@ -40,7 +40,7 @@ export function None() {
  * @alias o.isSome
  * @example
  * ```ts
- * import { Some, None, isSome } from '@vyke/results/option'
+ * import { None, Some, isSome } from '@vyke/results/option'
  *
  * isSome(Some(123)) // true
  * isSome(None()) // false
@@ -59,13 +59,13 @@ export function isSome<TValue>(option: Option<TValue>): option is SomeImpl<TValu
  * @alias o.isNone
  * @example
  * ```ts
- * import { Some, None, isNone } from '@vyke/results/option'
+ * import { None, Some, isNone } from '@vyke/results/option'
  *
  * isNone(Some(123)) // false
  * isNone(None()) // true
  * ```
  */
-export function isNone<TValue>(option: Option<TValue>): option is NoneImpl<TValue> {
+export function isNone<TValue>(option: Option<TValue>): option is NoneImpl {
 	return option instanceof NoneImpl
 }
 
@@ -76,7 +76,7 @@ export function isNone<TValue>(option: Option<TValue>): option is NoneImpl<TValu
  * @throws If the option is none
  * @example
  * ```ts
- * import { Some, None, unwrap } from '@vyke/results/option'
+ * import { None, Some, unwrap } from '@vyke/results/option'
  *
  * const value = unwrap(Some(123))
  * //      ^? number 123
@@ -99,11 +99,11 @@ export function unwrap<TValue>(option: Option<TValue>): TValue {
  * @returns The value of the result or the default value.
  * @example
  * ```ts
- * import { Some, None, unwrapOr } from '@vyke/results/option'
+ * import { None, Some, unwrapOr } from '@vyke/results/option'
  *
  * const value = unwrapOr(Some(123), 10)
  * //      ^? number
- * unwrapOr(None), 10) // returns 10 instead of throwing an error
+ * unwrapOr(None(), 10) // returns 10 instead of throwing an error
  * ```
  */
 export function unwrapOr<TValue>(option: Option<TValue>, defaultValue: TValue): TValue {
