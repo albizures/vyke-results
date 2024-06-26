@@ -1,7 +1,7 @@
 {
 	"name": "@vyke/results",
 	"type": "module",
-	"version": "0.3.4",
+	"version": "0.4.0",
 	"description": "Functional and small implementation of Rust _*Result*_ type with some goodies to work with TypeScript inspired by ts-results with its own take.",
 	"author": "Jose Albizures <jose@albizures.com> (https://albizures.com/)",
 	"license": "MIT",
