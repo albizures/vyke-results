@@ -3,99 +3,33 @@
  * @module
  */
 
-/**
- * Represents the status of a result.
- */
-export type ResultStatus = Result<unknown, unknown>['status']
+type ResultBase<TValue, TError> = {
+	value?: TValue
+	error?: TError
+}
 
-/**
- * Represents a successful result with a value.
- */
-export type OkResult<TValue> = {
-	status: 'success'
-	value: TValue
+class OkImpl<TValue> implements ResultBase<TValue, never> {
+	constructor(public value: TValue) {}
+}
+
+class ErrImpl<TError> extends Error implements ResultBase<never, TError> {
+	public origin?: Error
+
+	constructor(public error: TError, message?: string) {
+		if (error instanceof Error) {
+			super(message ?? error.message)
+			this.origin = error
+		}
+		else {
+			super(message ?? String(error))
+		}
+	}
 }
 
 /**
- * Represents an error result with an error value.
+ * Represents a result that can be either a successful result or an error result
  */
-export type ErrResult<TError> = {
-	status: 'error'
-	value: TError
-}
-
-/**
- * Represents a pending result.
- */
-export type PendingResult = {
-	status: 'pending'
-}
-
-/**
- * Represents an empty result.
- */
-export type EmptyResult = {
-	status: 'empty'
-}
-
-/**
- * Represents a result that can be either a successful result, an error result, a pending result, or an empty result.
- */
-export type Result<TValue, TError> = OkResult<TValue> | ErrResult<TError> | PendingResult | EmptyResult
-
-/**
- * Checks if the given value is a result.
- * @alias r.isResult
- * @returns `true` if the value is a result, `false` otherwise.
- */
-export let IsResult = (result: unknown): result is Result<unknown, unknown> => {
-	return Boolean(result && typeof result === 'object' && 'status' in result && 'value' in result)
-}
-
-/**
- * Checks if the result is a successful result.
- * @alias r.isOk
- * @param result - The result to check.
- * @returns `true` if the result is a successful result, `false` otherwise.
- */
-export let IsOk = <TValue, TError>(result: Result<TValue, TError>): result is OkResult<TValue> => {
-	return result.status === 'success'
-}
-
-/**
- * Checks if the result is an error result.
- * @alias r.isErr
- * @param result - The result to check.
- * @returns `true` if the result is an error result, `false` otherwise.
- */
-export let IsErr = <TValue, TError>(result: Result<TValue, TError>): result is ErrResult<TError> => {
-	return result.status === 'error'
-}
-
-/**
- * Checks if the result is an empty result.
- * @alias r.isEmpty
- * @returns `true` if the result is an empty result, `false` otherwise.
- */
-export let IsEmpty = <TValue, TError>(result: Result<TValue, TError>): result is EmptyResult => {
-	return result.status === 'empty'
-}
-
-/**
- * Checks if the result is a pending result.
- * @alias r.isPending
- * @returns `true` if the result is a pending result, `false` otherwise.
- */
-export let IsPending = <TValue, TError>(result: Result<TValue, TError>): result is PendingResult => {
-	return result.status === 'pending'
-}
-
-/**
- * Configuration options for the result module.
- */
-export let config = {
-	verbose: false,
-}
+export type Result<TValue, TError> = OkImpl<TValue> | ErrImpl<TError>
 
 /**
  * Creates a new successful result with the given value.
@@ -109,11 +43,8 @@ export let config = {
  * //      ^? Result<number, never>
  * ```
  */
-export let Ok = <TValue>(value: TValue): Result<TValue, never> => {
-	return {
-		value,
-		status: 'success',
-	}
+export function Ok<TValue>(value: TValue): Result<TValue, never> {
+	return new OkImpl(value)
 }
 
 /**
@@ -130,75 +61,59 @@ export let Ok = <TValue>(value: TValue): Result<TValue, never> => {
  * > [!NOTE]
  * > Error values don't need to be an error, they can be anything.
  */
-export let Err = <TError>(error: TError): Result<never, TError> => {
-	return {
-		value: error,
-		status: 'error',
-	}
+export function Err<TError>(error: TError, message?: string): Result<never, TError> {
+	return new ErrImpl(error, message)
 }
 
 /**
- * Creates a new empty result.
- * @alias r.empty
- * @returns A new empty result.
+ * Checks if the result is a successful result.
+ * @alias r.isOk
+ * @param result - The result to check.
+ * @returns `true` if the result is a successful result, `false` otherwise.
+ */
+export function isOk<TValue, TError>(result: Result<TValue, TError>): result is OkImpl<TValue> {
+	return result instanceof OkImpl
+}
+
+/**
+ * Checks if the result is an error result.
+ * @alias r.isErr
+ * @param result - The result to check.
+ * @returns `true` if the result is an error result, `false` otherwise.
+ */
+export function isErr<TValue, TError>(result: Result<TValue, TError>): result is ErrImpl<TError> {
+	return result instanceof ErrImpl
+}
+
+/**
+ * Unwraps the value of a result or throws a custom error.
+ * @alias r.expectOk
+ * @param result - The result to unwrap.
+ * @param message - The custom error message or error object to throw.
+ * @returns The value of the result.
+ * @throws If the result is an error result or.
  * @example
  * ```ts
- * import { Empty, IsEmpty } from '@vyke/results'
+ * import { Err, Ok, expect } from '@vyke/results'
  *
- * const result = Empty()
+ * const value = expect(Ok(123), 'some error')
+ * //     ^? number
  *
- * if (IsEmpty(result)) {
- * 	console.log('The result is empty')
- * }
- *
- * result.value // not available
+ * expect(Err(new Error('some error')), 'another error') // throws the error with the message `another error`
  * ```
  */
-export let Empty = (): EmptyResult => {
-	return {
-		status: 'empty',
+export function expectOk<TValue, TError>(result: Result<TValue, TError>, message: string): TValue {
+	if (isOk(result)) {
+		return result.value
 	}
-}
 
-/**
- * Creates a new pending result.
- * @alias r.pending
- * @returns A new pending result.
- * @example
- * ```ts
- * import { IsPending, Pending } from '@vyke/results'
- *
- * const result = Pending()
- *
- * if (Pending(result)) {
- * 	console.log('The result is pending')
- * }
- *
- * result.value // not available
- * ```
- */
-export let Pending = (): PendingResult => {
-	return {
-		status: 'pending',
-	}
-}
-
-/**
- * Represents an error result with an error value.
- */
-export class ResultError<TError = unknown> extends Error implements ErrResult<TError> {
-	status: 'error' = 'error' as const
-	value: TError
-	constructor(message: string, value: TError) {
-		super(message)
-		this.value = value
-	}
+	throw Err(result.error, message)
 }
 
 /**
  * Unwraps the value of a result or throws an error.
  * @alias r.unwrap
- * @throws If the result is an error result or a pending or empty result.
+ * @throws If the result is an error result
  * @example
  * ```ts
  * import { Ok, unwrap } from '@vyke/results'
@@ -208,21 +123,12 @@ export class ResultError<TError = unknown> extends Error implements ErrResult<TE
  * unwrap(Err(new Error('some error'))) // throws the error
  * ```
  */
-export let unwrap = <TValue, TError>(result: Result<TValue, TError>): TValue => {
-	if (IsOk(result)) {
-		return result.value
+export function unwrap<TValue, TError>(result: Result<TValue, TError>): TValue {
+	if (isErr(result)) {
+		throw result
 	}
 
-	if (IsErr(result)) {
-		const { value } = result
-		throw new ResultError(
-			value instanceof Error
-				? value.message
-				: `${value}`, value,
-		)
-	}
-
-	throw new ResultError('Cannot unwrap a pending or empty result', result)
+	return result.value
 }
 
 /**
@@ -240,93 +146,12 @@ export let unwrap = <TValue, TError>(result: Result<TValue, TError>): TValue => 
  * unwrapOr(Err(new Error('some error')), 10) // returns 10 instead of the error
  * ```
  */
-export let unwrapOr = <TValue, TError>(
-	result: Result<TValue, TError>,
-	defaultValue: TValue,
-): TValue => {
-	if (IsOk(result)) {
+export function unwrapOr<TValue, TError>(result: Result<TValue, TError>, defaultValue: TValue): TValue {
+	if (isOk(result)) {
 		return result.value
 	}
 
 	return defaultValue
-}
-
-/**
- * Unwraps the value of a result or throws a custom error.
- * @alias r.expect
- * @param result - The result to unwrap.
- * @param message - The custom error message or error object to throw.
- * @returns The value of the result.
- * @throws If the result is an error result or a pending or empty result.
- * @example
- * ```ts
- * import { Err, Ok, expect } from '@vyke/results'
- *
- * const value = expect(Ok(123), 'some error')
- * //     ^? number
- *
- * expect(Err(new Error('some error')), 'another error') // throws the error with the message `another error`
- * ```
- */
-export let expect = <TValue, TError, TMessage>(result: Result<TValue, TError>, message: TMessage): TValue => {
-	if (IsOk(result)) {
-		return result.value
-	}
-
-	throw typeof message === 'string' ? new Error(message) : message
-}
-
-type Fn<TValue> = () => TValue
-
-/**
- * Runs a function and captures any errors, converting them to a result if needed.
- * @alias r.capture
- * @returns A result representing the outcome of the function.
- * @example
- * ```ts
- * import { Err, Ok, capture, unwrap } from '@vyke/results'
- *
- * const result1 = capture(() => 123) // only returns value in a return
- * //     ^? Result<number, unknown>
- *
- * const result2 = capture(() => {
- * 	unwrap(Err(new Error('some error')))
- * })
- * ```
- */
-export let capture = <TValue, TError = unknown>(fn: Fn<TValue>): Result<TValue, TError | unknown> => {
-	try {
-		return Ok(fn())
-	}
-	catch (error) {
-		if (error instanceof ResultError) {
-			return error
-		}
-		return Err(error)
-	}
-}
-
-/**
- * Converts a pending result, or empty result to an error result with the specified error value.
- * @alias r.intoErr
- * @returns An error result with the specified error value.
- * @example
- * ```ts
- * import { Empty, Err, Pending, intoErr } from '@vyke/results'
- * intoErr(Err('my error'), 'another error') // ErrResult<'my error'>
- * intoErr(Pending(), 'error cus empty') // ErrResult<'error cus empty'>
- * intoErr(Empty, 'another cus pending') // ErrResult<'another cus pending'>
- * ```
- * > [!NOTE]
- * > This function does nothing if the result is already an error result.
- * > And it's not meant to convert a successful result to an error result.
- */
-export let intoErr = <TError>(result: ErrResult<TError> | PendingResult | EmptyResult, error: TError): ErrResult<TError> => {
-	if (IsErr(result)) {
-		return result
-	}
-
-	return Err(error) as ErrResult<TError>
 }
 
 /**
@@ -339,11 +164,9 @@ export let intoErr = <TError>(result: ErrResult<TError> | PendingResult | EmptyR
  * mapInto(Err(new Error('some error')), (value) => Ok(value + 1)) // Err(new Error('some error'))
  * ```
  */
-export let mapInto = <TValue, TError, TNewValue, TNewError>(
-	result: Result<TValue, TError>,
-	fn: Mapper<TValue, Result<TNewValue, TNewError>>,
-): Result<TNewValue, TError | TNewError> => {
-	if (IsOk(result)) {
+export function mapInto<TValue, TError, TNewValue, TNewError>(result: Result<TValue, TError>,
+	fn: Mapper<TValue, Result<TNewValue, TNewError>>): Result<TNewValue, TError | TNewError> {
+	if (isOk(result)) {
 		return fn(result.value)
 	}
 
@@ -404,6 +227,230 @@ export type Mapper<TValue, TResult extends Result<any, any>> = (value: TValue) =
  * 	.done()
  * ```
  */
-export let map = <TValue, TError>(result: Result<TValue, TError>): MapHelper<TValue, TError> => {
+export function map<TValue, TError>(result: Result<TValue, TError>): MapHelper<TValue, TError> {
 	return new MapHelper(result)
+}
+
+type Fn<TValue> = () => TValue
+
+/**
+ * Runs a function and captures any errors, converting them to a result.
+ * @alias r.capture
+ * @returns A result representing the outcome of the function.
+ * @example
+ * ```ts
+ * import { Err, Ok, capture, unwrap } from '@vyke/results'
+ *
+ * const result1 = capture(() => 123) // only returns value in a return
+ * //     ^? Result<number, unknown>
+ *
+ * const result2 = capture(() => {
+ * 	unwrap(Err(new Error('some error')))
+ * })
+ * ```
+ */
+export function capture<TValue, TError = unknown>(fn: Fn<TValue>): Result<TValue, TError | unknown> {
+	try {
+		return Ok(fn())
+	}
+	catch (error) {
+		if (error instanceof ErrImpl) {
+			return error
+		}
+		return Err(error) as Result<TValue, TError | unknown>
+	}
+}
+
+/**
+ * Flattens a nested result.
+ * @alias r.flatten
+ * @param result - The result to flatten.
+ * @returns The flattened result.
+ * @example
+ * ```ts
+ * import { Ok, flatten } from '@vyke/results'
+ *
+ * const result = flatten(Ok(Ok(123)))
+ * //      ^? Result<number, unknown>
+ * ```
+ */
+export function flatten<TValue>(result: Result<Result<TValue, any>, Result<TValue, any>>): Result<TValue, unknown> {
+	if (result instanceof OkImpl) {
+		return result.value
+	}
+
+	return result.error
+}
+
+/**
+ * Converts a promise to a result
+ * @alias r.to
+ * @returns A promise that resolves to a Result
+ * @example
+ * ```ts
+ * import { to } from '@vyke/results'
+ *
+ * const result = await to(Promise.resolve(123))
+ * //     ^? Result<number, unknown>
+ * ```
+ * > [!CAUTION]
+ * > Notice that Result error type is unknown
+ */
+export async function to<TValue>(promise: Promise<TValue>): Promise<Result<TValue, unknown>> {
+	try {
+		const data = await promise
+
+		return Ok(data)
+	}
+	catch (error) {
+		if (error instanceof ErrImpl) {
+			return error
+		}
+
+		return Err(error)
+	}
+}
+
+/**
+ * Converts a promise to a result and applies a mapping function
+ * @alias r.andThen
+ * @param result - The result to apply the mapping function to
+ * @param fn - The mapping function
+ * @returns The result of applying the mapping function to the input result
+ * @example
+ * ```ts
+ * import { Ok, andThen } from '@vyke/results'
+ *
+ * const result = andThen(Ok(123), (value) => Ok(String(value)))
+ * //      ^? Result<number, never>
+ * ```
+ */
+export function andThen<TValue, TError, TNewValue = TValue, TNewError = TError>(result: Result<TValue, TError>,
+	fn: Mapper<TValue, Result<TNewValue, TNewError>>): ErrImpl<TError> | Result<TNewValue, TNewError> {
+	if (isOk(result)) {
+		return fn(result.value)
+	}
+
+	return result
+}
+
+type NextHandle<TValue, TNextValue, TNextError> = <TError>(result: Result<TValue, TError>) => Promise<Result<TNextValue, TError | TNextError | Error>>
+type NextFn<TValue, TNextValue, TNextError> = (value: TValue) => Result<TNextValue, TNextError> | Promise<Result<TNextValue, TNextError>>
+/**
+ * Creates a function to be used as a _then_ callback in a promise chain
+ * @alias r.next
+ * @param nextFn - The function to be executed in the next step of the promise chain
+ * @param message - An optional error message to be thrown if the next step returns an error
+ * @returns A function that can be used as a _then_ callback
+ * @example
+ * ```ts
+ * import { next, to } from '@vyke/results'
+ *
+ * const result = await Promise.resolve(Ok(123))
+ * //     ^? Result<string, never>
+ * 	.then(next((value) => Ok(String(value))))
+ * ```
+ */
+export function next<TValue, TNextValue, TNextError>(
+	nextFn: NextFn<TValue, TNextValue, TNextError>,
+	message?: string,
+): NextHandle<TValue, TNextValue, TNextError> {
+	return async <TError>(result: Result<TValue, TError>) => {
+		if (isOk(result)) {
+			const nextResult = await nextFn(result.value)
+
+			if (isErr(nextResult)) {
+				if (message) {
+					return Err(new Error(message))
+				}
+			}
+
+			return nextResult
+		}
+
+		return result
+	}
+}
+
+/**
+ * Converts a promise to a result and throws an error with a custom message if the result is an error
+ * @alias r.toExpect
+ * @param promise - The promise to convert
+ * @param message - The error message to throw if the result is an error
+ * @returns A promise that resolves to the value of the promise
+ * @example
+ * ```ts
+ * import { Err, Ok, toExpectOk } from '@vyke/results'
+ *
+ * const value = await toExpectOk(Ok(123), 'some error')
+ * //     ^? number
+ * await toExpectOk(Err(new Error('some error')), 'another error') // throws the error with the message `another error`
+ * ```
+ */
+export async function toExpectOk<TValue>(promise: Promise<Result<TValue, any>>, message: string): Promise<TValue> {
+	try {
+		const result = await promise
+		return expectOk(result, message)
+	}
+	catch (error) {
+		if (error instanceof ErrImpl) {
+			throw Err(error.error, message)
+		}
+		throw Err(error, message)
+	}
+}
+
+/**
+ * Awaits for the promise and unwraps it then returns the value or throws the error
+ * @alias r.toUnwrap
+ * @param promise - The promise to unwrap
+ * @returns A promise that resolves to the value of the promise
+ * @example
+ * ```ts
+ * import { Ok, toUnwrap } from '@vyke/results'
+ *
+ * const value = await toUnwrap(Ok(123))
+ * //      ^? number
+ * await toUnwrap(Err(new Error('some error'))) // throws the error
+ * ```
+ */
+export async function toUnwrap<TValue, TError>(promise: Promise<Result<TValue, TError>>): Promise<TValue> {
+	try {
+		const data = await promise
+
+		return unwrap(data)
+	}
+	catch (error) {
+		if (error instanceof ErrImpl) {
+			throw error
+		}
+
+		throw Err(error)
+	}
+}
+
+/**
+ * Awaits for the promise, unwraps it, and then returns the value or the default one
+ * @alias r.toUnwrapOr
+ * @param promise - The promise to unwrap
+ * @param defaultValue - The default value to return if the promise is an error
+ * @returns A promise that resolves to the value of the promise or the default value
+ * @example
+ * ```ts
+ * import { Ok, toUnwrapOr } from '@vyke/results'
+ *
+ * const value = await toUnwrapOr(Ok(123), 345)
+ * //      ^? number
+ * await toUnwrapOr(Err(new Error('some error')), 456) // returns 456 instead of throwing
+ * ```
+ */
+export async function toUnwrapOr<TValue, TError>(promise: Promise<Result<TValue, TError>>, defaultValue: TValue): Promise<TValue> {
+	try {
+		const data = await promise
+
+		return unwrapOr(data, defaultValue)
+	}
+	catch (error) {
+		return defaultValue
+	}
 }

@@ -1,2 +1,2 @@
-export * from './result'
-export * from './promise'
+export * from './r'
+export * from './o'

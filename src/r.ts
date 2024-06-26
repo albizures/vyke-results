@@ -3,23 +3,45 @@
  * @module
  */
 
-import * as all from './'
+import {
+	Err,
+	Ok,
+	andThen,
+	capture,
+	expectOk,
+	isErr,
+	isOk,
+	map,
+	mapInto,
+	next,
+	to,
+	toExpectOk,
+	toUnwrap,
+	toUnwrapOr,
+	unwrap,
+	unwrapOr,
+} from './result'
 
 /**
  * Shorthand for all functions in the `result` module for easy access
  */
-export let r = {
-	...all,
-	ok: all.Ok,
-	err: all.Err,
-	empty: all.Empty,
-	pending: all.Pending,
-
-	isOk: all.IsOk,
-	isErr: all.IsErr,
-	isEmpty: all.IsEmpty,
-	isResult: all.IsResult,
-	isPending: all.IsPending,
-
-	intoErr: all.intoErr,
+export const r = {
+	Ok,
+	Err,
+	isOk,
+	isErr,
+	map,
+	unwrap,
+	mapInto,
+	capture,
+	unwrapOr,
+	expectOk,
+	to,
+	next,
+	andThen,
+	toUnwrap,
+	toUnwrapOr,
+	toExpectOk,
 }
+
+export type { Result } from './result'

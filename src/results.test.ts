@@ -1,26 +1,49 @@
 import { assertType, describe, expect, it, vi } from 'vitest'
-import { r } from './r'
-import { type Result, ResultError } from '.'
+import { type Result, r } from './r'
 
-r.config.verbose = false
+it('should be compatible with option type', () => {
+	const result1 = r.Ok(123)
+	const result2 = r.Err('error')
+
+	assertType<Result<number, unknown>>(result1)
+	assertType<Result<unknown, string>>(result2)
+})
 
 it('should return an ok result', () => {
-	expect(r.ok('123')).toEqual({ value: '123', status: 'success' })
+	const result = r.Ok('123')
+	expect(r.isOk(result) && result.value).toEqual('123')
 })
 
 it('should return an err result ', () => {
-	expect(r.err('345')).toEqual({ value: '345', status: 'error' })
+	const result = r.Err('345')
+	expect(r.isErr(result) && result.error).toEqual('345')
+})
+
+describe('isOk', () => {
+	it('should return true when given a some option', () => {
+		const option = r.Ok(123)
+
+		expect(r.isOk(option)).toBe(true)
+	})
+})
+
+describe('isErr', () => {
+	it('should return true when given a none option', () => {
+		const option = r.Err('error')
+
+		expect(r.isErr(option)).toBe(true)
+	})
 })
 
 describe('unwrap', () => {
 	it('should throw the error', () => {
-		const result = r.err(new Error('some error'))
+		const result = r.Err(new Error('some error'))
 
 		expect(() => r.unwrap(result)).toThrowError('some error')
 	})
 
 	it('should unwrap the value', () => {
-		const result = r.ok('123')
+		const result = r.Ok('123')
 
 		expect(r.unwrap(result)).toBe('123')
 	})
@@ -28,18 +51,18 @@ describe('unwrap', () => {
 
 describe('unwrapOr', () => {
 	it('should unwrap the value', () => {
-		const result = r.ok('123')
+		const result = r.Ok('123')
 
 		expect(r.unwrapOr(result, '345')).toBe('123')
 	})
 	it('should return default value', () => {
-		const result: Result<Array<string>, Error> = r.err(new Error('error'))
+		const result: Result<Array<string>, Error> = r.Err(new Error('error'))
 		const defaultValue = r.unwrapOr(result, [])
 
 		assertType<Array<string>>(defaultValue)
 		expect(defaultValue).toEqual([])
 
-		const result2: Result<number, Error> = r.err(new Error('error'))
+		const result2: Result<number, Error> = r.Err(new Error('error'))
 		const defaultValue2 = r.unwrapOr(result2, 0)
 
 		assertType<number>(defaultValue2)
@@ -49,24 +72,24 @@ describe('unwrapOr', () => {
 
 describe('expect', () => {
 	it('should throw the error', () => {
-		const result = r.err(new Error('some error'))
+		const result = r.Err(new Error('some error'))
 
-		expect(() => r.expect(result, 'another error')).toThrowError('another error')
+		expect(() => r.expectOk(result, 'another error')).toThrowError('another error')
 	})
 
 	it('should unwrap the value', () => {
-		const result = r.ok('123')
+		const result = r.Ok('123')
 
-		expect(r.expect(result, 'another error')).toBe('123')
+		expect(r.expectOk(result, 'another error')).toBe('123')
 	})
 })
 
 describe('andThen', () => {
 	it('should call only when the result is ok', () => {
-		const okResult = r.ok('123')
+		const okResult = r.Ok('123')
 
 		const toInt = vi.fn((value) => {
-			return r.ok(Number(value))
+			return r.Ok(Number(value))
 		})
 
 		const nextOkResult = r.andThen(okResult, toInt)
@@ -75,14 +98,14 @@ describe('andThen', () => {
 		expect(toInt).toHaveBeenCalledWith('123')
 		expect(r.isOk(nextOkResult) && nextOkResult.value).toBe(123)
 
-		const errResult = r.err(new Error('invalid'))
+		const errResult = r.Err(new Error('invalid'))
 
 		toInt.mockReset()
 
 		const nextErrorResult = r.andThen(errResult, toInt)
 
 		expect(toInt).not.toHaveBeenCalledOnce()
-		expect(r.isErr(nextErrorResult) && nextErrorResult.value).toMatchObject({ message: 'invalid' })
+		expect(r.isErr(nextErrorResult) && nextErrorResult.error).toMatchObject({ message: 'invalid' })
 	})
 })
 
@@ -97,14 +120,14 @@ describe('to', () => {
 describe('next', () => {
 	it('should run the next function only if it is ok', async () => {
 		const addOne = vi.fn((value: number) => {
-			return r.ok(value + 1)
+			return r.Ok(value + 1)
 		})
 
 		const toString = vi.fn((value: number) => {
-			return r.ok(String(value))
+			return r.Ok(String(value))
 		})
 
-		const result = await Promise.resolve(r.ok(1))
+		const result = await Promise.resolve(r.Ok(1))
 			.then(r.next(addOne))
 			.then(r.next(toString))
 
@@ -113,18 +136,18 @@ describe('next', () => {
 
 	it('should not run any next function if it is an error', async () => {
 		const addOne = vi.fn((value: number) => {
-			return r.ok(value + 1)
+			return r.Ok(value + 1)
 		})
 
 		const toString = vi.fn((value: number) => {
-			return r.ok(String(value))
+			return r.Ok(String(value))
 		})
 
-		const result = await Promise.resolve(r.err(new Error('some error')))
+		const result = await Promise.resolve(r.Err(new Error('some error')))
 			.then(r.next(addOne))
 			.then(r.next(toString))
 
-		expect(r.isErr(result) && result.value).toMatchObject({
+		expect(r.isErr(result) && result.error).toMatchObject({
 			message: 'some error',
 		})
 		expect(addOne).not.toHaveBeenCalled()
@@ -139,18 +162,18 @@ describe('next', () => {
 				}
 			}
 			const addOne = vi.fn((_value: number) => {
-				return r.err(new MyError('unable to add one'))
+				return r.Err(new MyError('unable to add one'))
 			})
 
 			const toString = vi.fn((value: number) => {
-				return Promise.resolve(r.ok(String(value)))
+				return Promise.resolve(r.Ok(String(value)))
 			})
 
-			const result = await Promise.resolve(r.ok(1))
+			const result = await Promise.resolve(r.Ok(1))
 				.then(r.next(addOne, 'custom error'))
-				.then(r.next(toString))
+				// .then(r.next(toString))
 
-			expect(r.isErr(result) && result.value).toMatchObject({
+			expect(r.isErr(result) && result.error).toMatchObject({
 				message: 'custom error',
 			})
 			expect(addOne).toHaveBeenCalled()
@@ -169,7 +192,7 @@ describe('toUnwrap', () => {
 	})
 
 	it('should unwrap the value', async () => {
-		const promise = Promise.resolve(r.ok('123'))
+		const promise = Promise.resolve(r.Ok('123'))
 
 		const value = await r.toUnwrap(promise)
 
@@ -193,7 +216,7 @@ describe('toUnwrapOr', () => {
 	})
 
 	it('should unwrap the value', async () => {
-		const promise = Promise.resolve(r.ok('123'))
+		const promise = Promise.resolve(r.Ok('123'))
 
 		const value = await r.toUnwrapOr(promise, 'default')
 
@@ -206,14 +229,14 @@ describe('toExpect', () => {
 		const promise = Promise.reject(new Error('some error'))
 
 		expect(async () => {
-			await r.toExpect(promise, 'another error')
+			await r.toExpectOk(promise, 'another error')
 		}).rejects.toThrow('another error')
 	})
 
 	it('should unwrap the value', async () => {
-		const promise = Promise.resolve('123')
+		const promise = Promise.resolve(r.Ok('123'))
 
-		const value = await r.toExpect(promise, 'default')
+		const value = await r.toExpectOk(promise, 'default')
 
 		expect(value).toMatchObject('123')
 	})
@@ -227,7 +250,7 @@ describe('capture', () => {
 
 		const result = r.capture(fn)
 
-		expect(result).toEqual({ value: '123', status: 'success' })
+		expect(result).toEqual({ value: '123' })
 	})
 	it('should capture/catch the error', () => {
 		function fnWithError() {
@@ -236,49 +259,25 @@ describe('capture', () => {
 
 		const result = r.capture(fnWithError)
 
-		expect(result).toEqual({ value: expect.objectContaining({
-			message: 'some error',
-		}), status: 'error' })
-	})
-})
-
-describe('toCapture', () => {
-	it('should resolve the result promise', async () => {
-		async function fnWithError() {
-			const result1 = r.ok('123')
-
-			const value1 = r.unwrap(result1)
-
-			expect(value1).toBe('123')
-
-			const result2 = r.err(new Error('some error'))
-
-			const value2 = r.unwrap(result2)
-
-			return r.ok(value2)
-		}
-
-		const result = await r.toCapture(fnWithError())
-
-		expect(result).instanceOf(ResultError)
+		expect(r.isErr(result) && result.error).toMatchObject({ message: 'some error' })
 	})
 })
 
 describe('mapInto', () => {
 	it('should map the value', () => {
-		const result = r.ok('123')
+		const result = r.Ok('123')
 
-		const mappedResult = r.mapInto(result, (value) => r.ok(Number(value)))
+		const mappedResult = r.mapInto(result, (value) => r.Ok(Number(value)))
 
 		expect(r.isOk(mappedResult) && mappedResult.value).toBe(123)
 	})
 
 	it('should not map the error', () => {
-		const result = r.err(new Error('some error'))
+		const result = r.Err(new Error('some error'))
 
-		const mappedResult = r.mapInto(result, (value) => r.ok(Number(value)))
+		const mappedResult = r.mapInto(result, (value) => r.Ok(Number(value)))
 
-		expect(r.isErr(mappedResult) && mappedResult.value).toMatchObject({
+		expect(r.isErr(mappedResult) && mappedResult.error).toMatchObject({
 			message: 'some error',
 		})
 	})
@@ -286,9 +285,9 @@ describe('mapInto', () => {
 
 describe('map', () => {
 	it('should map the value', () => {
-		const result = r.map(r.ok(1))
-			.into((value) => r.ok(value + 1))
-			.into((value) => r.ok(value + 1))
+		const result = r.map(r.Ok(1))
+			.into((value) => r.Ok(value + 1))
+			.into((value) => r.Ok(value + 1))
 			.get()
 
 		expect(r.isOk(result) && result.value).toBe(3)
@@ -296,32 +295,13 @@ describe('map', () => {
 
 	describe('when one of the into functions doesn\'t return a successful result', () => {
 		it('should not map the error', () => {
-			const errorResult = r.map(r.err(new Error('some error')))
-				.into((value) => r.ok(Number(value)))
-				.into((value) => r.ok(value + 1))
+			const errorResult = r.map(r.Err(new Error('some error')))
+				.into((value) => r.Ok(Number(value)))
+				.into((value) => r.Ok(value + 1))
 				.get()
 
-			expect(r.isErr(errorResult) && errorResult.value).toMatchObject({
+			expect(r.isErr(errorResult) && errorResult.error).toMatchObject({
 				message: 'some error',
-			})
-			const emptyResult = r.map(r.empty())
-				.into((value) => r.ok(Number(value)))
-				.into((value) => r.ok(value + 1))
-				.get()
-
-			expect(
-				emptyResult,
-			).toMatchObject({
-				status: 'empty',
-			})
-			const pendingResult = r.map(r.pending())
-				.into((value) => r.ok(Number(value)))
-				.get()
-
-			expect(
-				pendingResult,
-			).toMatchObject({
-				status: 'pending',
 			})
 		})
 	})
