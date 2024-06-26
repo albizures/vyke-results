@@ -3,6 +3,9 @@
 	"version": "0.3.4",
 	"exports": {
 		".": "./src/index.ts",
-		"./r": "./src/r.ts"
+		"./result": "./src/result.ts",
+		"./option": "./src/option.ts",
+		"./r": "./src/r.ts",
+		"./o": "./src/o.ts"
 	}
 }

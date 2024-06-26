@@ -11,6 +11,9 @@ importers:
       '@antfu/eslint-config':
         specifier: ^2.21.1
         version: 2.21.1(@vue/compiler-sfc@3.3.13)(eslint@9.5.0)(typescript@5.5.2)(vitest@1.6.0(@types/node@20.10.3))
+      '@vyke/jsr-sync':
+        specifier: ^0.0.3
+        version: 0.0.3
       '@vyke/tsdocs':
         specifier: ^0.0.8
         version: 0.0.8(typescript@5.5.2)
@@ -409,6 +412,9 @@ packages:
     resolution: {integrity: sha512-f5DRIOZf7wxogefH03RjMPMdBF7ADTWUMoOs9kaJo06EfwF+aFhMZMDZxHg/Xe12hptN9xoZjGso2fdjapBRIA==}
     engines: {node: '>=10'}
 
+  '@jsr/vyke__results@0.3.4':
+    resolution: {integrity: sha512-v48/ecqqY8kgydkr3pNryZu+LZ0xr39Ia8E/AFXViKBqQyou8s4NXOw0895lpjsJ3oLxuMRpfMZ9k/LjTm1IeA==, tarball: https://npm.jsr.io/~/11/@jsr/vyke__results/0.3.4.tgz}
+
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -736,6 +742,10 @@ packages:
 
   '@vue/shared@3.3.13':
     resolution: {integrity: sha512-/zYUwiHD8j7gKx2argXEMCUXVST6q/21DFU0sTfNX0URJroCe3b1UF6vLJ3lQDfLNIiiRl2ONp7Nh5UVWS6QnA==}
+
+  '@vyke/jsr-sync@0.0.3':
+    resolution: {integrity: sha512-eazSTfW+Q6oOdDyW4QtuCLZ6j1pTHe2p/jufZRbOPCAUly6S5RDi/NOXTghjPQZ56ZnKs09Nq1j6JU2HmKQVRQ==}
+    hasBin: true
 
   '@vyke/results@0.2.3':
     resolution: {integrity: sha512-/D88KWDNrsOWeqE9crdT5m9NqLoTAJfqJ4dWcQ2yXad7NrtwhvRRWC85/aGAvCCYUEAt34nomFqGk6QCYo4cmA==}
@@ -3053,6 +3063,10 @@ packages:
     resolution: {integrity: sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==}
     engines: {node: '>=8'}
 
+  type-fest@4.20.1:
+    resolution: {integrity: sha512-R6wDsVsoS9xYOpy8vgeBlqpdOyzJ12HNfQhC/aAKWM3YoCV9TtunJzh/QpkMgeDhkoynDcw5f1y+qF9yc/HHyg==}
+    engines: {node: '>=16'}
+
   typed-array-buffer@1.0.0:
     resolution: {integrity: sha512-Y8KTSIglk9OZEr8zywiIHG/kmQ7KWyjseXs1CbSo8vC42w7hg2HgYTxSWwP0+is7bWDc1H+Fo026CpHFwm8tkw==}
     engines: {node: '>= 0.4'}
@@ -3291,6 +3305,9 @@ packages:
 
   zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
+
+  zod@3.23.8:
+    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
 snapshots:
 
@@ -3662,6 +3679,8 @@ snapshots:
       cross-spawn: 7.0.3
       string-argv: 0.3.2
       type-detect: 4.0.8
+
+  '@jsr/vyke__results@0.3.4': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -4043,6 +4062,16 @@ snapshots:
       magic-string: 0.30.5
 
   '@vue/shared@3.3.13': {}
+
+  '@vyke/jsr-sync@0.0.3':
+    dependencies:
+      '@clack/prompts': 0.7.0
+      '@vyke/results': '@jsr/vyke__results@0.3.4'
+      '@vyke/sola': 0.0.6
+      picocolors: 1.0.1
+      type-fest: 4.20.1
+      yargs: 17.7.2
+      zod: 3.23.8
 
   '@vyke/results@0.2.3': {}
 
@@ -6516,6 +6545,8 @@ snapshots:
 
   type-fest@0.8.1: {}
 
+  type-fest@4.20.1: {}
+
   typed-array-buffer@1.0.0:
     dependencies:
       call-bind: 1.0.5
@@ -6809,3 +6840,5 @@ snapshots:
       zod: 3.22.4
 
   zod@3.22.4: {}
+
+  zod@3.23.8: {}

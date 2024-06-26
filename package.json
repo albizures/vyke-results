@@ -49,12 +49,14 @@
 		"test:unit:dev": "vitest",
 		"test:types": "tsc --noEmit",
 		"release:bump": "standard-version -t v",
+		"release:jsr-sync": "jsr-sync --section=exports",
 		"release:publish": "pnpm publish --access public",
 		"release:push-tags": "git push --follow-tags origin main",
-		"release": "run-s test build release:bump release:publish release:push-tags"
+		"release": "run-s test build release:jsr-sync release:bump release:publish release:push-tags"
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^2.21.1",
+		"@vyke/jsr-sync": "^0.0.3",
 		"@vyke/tsdocs": "^0.0.8",
 		"eslint": "^9.5.0",
 		"knip": "^5.22.3",
