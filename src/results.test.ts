@@ -68,6 +68,29 @@ describe('unwrapOr', () => {
 		assertType<number>(defaultValue2)
 		expect(defaultValue2).toBe(0)
 	})
+
+	describe('when the result is an error', () => {
+		it('should return the default value', () => {
+			const result = r.Err(new Error('some error'))
+
+			expect(r.unwrapOr(result, '345')).toBe('345')
+		})
+
+		describe('when an onError function is provided', () => {
+			it('should call the onError function', () => {
+				const error = new Error('some error')
+				const result = r.Err(error)
+
+				const onError = vi.fn()
+
+				const value = r.unwrapOr(result, 'default', onError)
+
+				expect(value).toBe('default')
+				expect(onError).toHaveBeenCalledOnce()
+				expect(onError).toHaveBeenCalledWith(error)
+			})
+		})
+	})
 })
 
 describe('expect', () => {
@@ -221,6 +244,31 @@ describe('toUnwrapOr', () => {
 		const value = await r.toUnwrapOr(promise, 'default')
 
 		expect(value).toBe('123')
+	})
+
+	describe('when the promise is rejected with an error', () => {
+		it('should return the default value', async () => {
+			const promise = Promise.reject(new Error('some error'))
+
+			const value = await r.toUnwrapOr(promise, 'default')
+
+			expect(value).toBe('default')
+		})
+
+		describe('when an onError function is provided', () => {
+			it('should call the onError function', async () => {
+				const error = new Error('some error')
+				const promise = Promise.reject(error)
+
+				const onError = vi.fn()
+
+				const value = await r.toUnwrapOr(promise, 'default', onError)
+
+				expect(value).toBe('default')
+				expect(onError).toHaveBeenCalledOnce()
+				expect(onError).toHaveBeenCalledWith(error)
+			})
+		})
 	})
 })
 
