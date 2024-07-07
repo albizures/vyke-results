@@ -136,6 +136,7 @@ export function unwrap<TValue, TError>(result: Result<TValue, TError>): TValue {
  * @alias r.unwrapOr
  * @param result - The result to unwrap.
  * @param defaultValue - The default value to return if the result is not a successful result.
+ * @param onError - An optional function to call when the result is an error.
  * @returns The value of the result or the default value.
  * @example
  * ```ts
@@ -146,11 +147,16 @@ export function unwrap<TValue, TError>(result: Result<TValue, TError>): TValue {
  * unwrapOr(Err(new Error('some error')), 10) // returns 10 instead of the error
  * ```
  */
-export function unwrapOr<TValue, TError>(result: Result<TValue, TError>, defaultValue: TValue): TValue {
+export function unwrapOr<TValue, TError>(
+	result: Result<TValue, TError>,
+	defaultValue: TValue,
+	onError?: (error: TError) => void,
+): TValue {
 	if (isOk(result)) {
 		return result.value
 	}
 
+	onError?.(result.error)
 	return defaultValue
 }
 
@@ -434,6 +440,7 @@ export async function toUnwrap<TValue, TError>(promise: Promise<Result<TValue, T
  * @alias r.toUnwrapOr
  * @param promise - The promise to unwrap
  * @param defaultValue - The default value to return if the promise is an error
+ * @param onError - An optional function to call when the promise is an error
  * @returns A promise that resolves to the value of the promise or the default value
  * @example
  * ```ts
@@ -444,13 +451,18 @@ export async function toUnwrap<TValue, TError>(promise: Promise<Result<TValue, T
  * await toUnwrapOr(Err(new Error('some error')), 456) // returns 456 instead of throwing
  * ```
  */
-export async function toUnwrapOr<TValue, TError>(promise: Promise<Result<TValue, TError>>, defaultValue: TValue): Promise<TValue> {
+export async function toUnwrapOr<TValue, TError>(
+	promise: Promise<Result<TValue, TError>>,
+	defaultValue: TValue,
+	onError?: (error: unknown | TError) => void,
+): Promise<TValue> {
 	try {
 		const data = await promise
 
-		return unwrapOr(data, defaultValue)
+		return unwrapOr(data, defaultValue, onError)
 	}
 	catch (error) {
+		onError?.(error)
 		return defaultValue
 	}
 }
